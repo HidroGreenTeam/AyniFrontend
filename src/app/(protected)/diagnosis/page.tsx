@@ -105,6 +105,8 @@ export default function DiagnosisPage() {
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 768px) 100vw, 50vw"
+                                width={500}
+                                height={500}
                             />
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                 <div className="text-center">
@@ -132,6 +134,8 @@ export default function DiagnosisPage() {
                                     src={imagePreview}
                                     alt="Imagen analizada"
                                     className="w-full h-64 object-cover"
+                                    width={500}
+                                    height={500}
                                 />
                             </div>
 

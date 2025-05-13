@@ -1,15 +1,16 @@
 "use client";
 
+import { authService } from "@/features/auth/services/authService";
 import {
   Bell,
   LogOut,
-  Moon, 
+  Moon,
   Settings,
   Sun,
   User,
-  Menu, 
+  Menu
 } from "lucide-react";
-import Link from "next/link";
+import Link from "next/link"; 
 import { useState, useEffect, useRef } from "react";
 
 interface HeaderProps {
@@ -26,13 +27,11 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
     email: "carlos.mendoza@ejemplo.com",
     avatar: null
   });
-  const [isLoading] = useState(true);
-  const userMenuRef = useRef<HTMLDivElement>(null);
+  const [isLoading] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null); 
 
- 
- 
+  
 
-  // Cerrar el menú de usuario cuando se hace clic fuera de él
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -46,11 +45,8 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
     };
   }, []);
 
- 
-
   const handleLogout = () => {
-    // Implementar lógica de cierre de sesión
-    console.log("Cerrar sesión");
+    authService.logout();
   };
 
   return (
@@ -70,36 +66,33 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
 
         {/* Acciones y perfil */}
         <div className="flex items-center space-x-1 md:space-x-3">
-          {/* Solo mostramos las notificaciones y el botón de tema */}
-         
-            <>
-              {/* Botón tema claro/oscuro */}
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
-                aria-label={theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-5 w-5 transform transition-transform duration-300 hover:rotate-12" />
-                ) : (
-                  <Moon className="h-5 w-5 transform transition-transform duration-300 hover:-rotate-12" />
-                )}
-              </button>
+          {/* Botón tema claro/oscuro */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+            aria-label={theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5 transform transition-transform duration-300 hover:rotate-12" />
+            ) : (
+              <Moon className="h-5 w-5 transform transition-transform duration-300 hover:-rotate-12" />
+            )}
+          </button>
 
-              {/* Botón de notificaciones */}
-              <Link
-                href="/notifications"
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 relative"
-                aria-label="Notificaciones"
-              >
-                <Bell className="h-5 w-5" />
-                {notifications > 0 && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-90 transition-transform hover:scale-100">
-                    {notifications}
-                  </span>
-                )}
-              </Link>
-            </>
+          {/* Botón de notificaciones */}
+          <Link
+            href="/notifications"
+            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 relative"
+            aria-label="Notificaciones"
+          >
+            <Bell className="h-5 w-5" />
+            {notifications > 0 && (
+              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-90 transition-transform hover:scale-100">
+                {notifications}
+              </span>
+            )}
+          </Link>
+
           {/* Perfil de usuario - siempre visible */}
           {!isLoading && (
             <div className="relative" ref={userMenuRef}>
@@ -125,8 +118,6 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
               {/* Menú desplegable */}
               {showUserMenu && (
                 <div className="absolute right-0 mt-2 w-64 rounded-md shadow-lg py-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transform origin-top-right transition-all duration-200 animate-fadeIn ring-1 ring-black ring-opacity-5 focus:outline-none">
-
-
                   <div className="py-1">
                     {/* Opciones principales (Perfil y Configuración) siempre visibles */}
                     <Link

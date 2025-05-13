@@ -15,7 +15,7 @@ import { useState } from "react";
 import Image from "next/image";
 
 export default function ProfilePage() {
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing] = useState(false);
     const [perfil, setPerfil] = useState({
         nombre: "Carlos Mendoza",
         email: "carlos.mendoza@ejemplo.com",
@@ -27,23 +27,27 @@ export default function ProfilePage() {
         avatar: "/placeholder.svg"
     });
 
-    const handleEditToggle = () => {
-        if (isEditing) {
-            // Aquí normalmente guardarías los cambios en el backend
-            // Simulamos un guardado exitoso
-            setTimeout(() => {
-                setIsEditing(false);
-            }, 500);
-        } else {
-            setIsEditing(true);
-        }
-    };
+    // Add state for notification preferences
+    const [notificationPrefs, setNotificationPrefs] = useState({
+        alertasEnfermedades: true,
+        recordatoriosTratamientos: true,
+        consejosRecomendaciones: false
+    });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setPerfil(prev => ({
             ...prev,
             [name]: value
+        }));
+    };
+
+    // Add handler for checkbox changes
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setNotificationPrefs(prev => ({
+            ...prev,
+            [name]: checked
         }));
     };
 
@@ -65,7 +69,6 @@ export default function ProfilePage() {
                 <div className="bg-gradient-to-r from-green-500 to-green-600 h-32 relative">
                     <button
                         className="absolute top-4 right-4 bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-shadow"
-                        onClick={handleEditToggle}
                     >
                         {isEditing ?
                             <Save className="h-5 w-5 text-green-600" /> :
@@ -78,11 +81,12 @@ export default function ProfilePage() {
                     <div className="flex flex-col sm:flex-row sm:items-end -mt-16 mb-4 sm:space-x-5">
                         <div className="relative">
                             <div className="h-32 w-32 rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-700">
-                                 
                                 <Image
                                     src={perfil.avatar}
                                     alt="Foto de perfil"
                                     className="h-full w-full object-cover"
+                                    width={128}
+                                    height={128}
                                 />
                             </div>
                             {isEditing && (
@@ -230,7 +234,13 @@ export default function ProfilePage() {
                             <div className="text-sm text-gray-500 dark:text-gray-400">Recibe notificaciones cuando se detecten enfermedades en tus cultivos</div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked={true} className="sr-only peer" />
+                            <input 
+                                type="checkbox" 
+                                name="alertasEnfermedades"
+                                checked={notificationPrefs.alertasEnfermedades} 
+                                onChange={handleCheckboxChange}
+                                className="sr-only peer" 
+                            />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
                         </label>
                     </div>
@@ -241,7 +251,13 @@ export default function ProfilePage() {
                             <div className="text-sm text-gray-500 dark:text-gray-400">Recibe notificaciones sobre tratamientos programados</div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked={true} className="sr-only peer" />
+                            <input 
+                                type="checkbox" 
+                                name="recordatoriosTratamientos"
+                                checked={notificationPrefs.recordatoriosTratamientos} 
+                                onChange={handleCheckboxChange}
+                                className="sr-only peer" 
+                            />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
                         </label>
                     </div>
@@ -252,7 +268,13 @@ export default function ProfilePage() {
                             <div className="text-sm text-gray-500 dark:text-gray-400">Recibe consejos personalizados para mejorar tus cultivos</div>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" checked={false} className="sr-only peer" />
+                            <input 
+                                type="checkbox" 
+                                name="consejosRecomendaciones"
+                                checked={notificationPrefs.consejosRecomendaciones} 
+                                onChange={handleCheckboxChange}
+                                className="sr-only peer" 
+                            />
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
                         </label>
                     </div>

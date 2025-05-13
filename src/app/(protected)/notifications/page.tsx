@@ -10,18 +10,11 @@ import {
   Trash2,
   MoreVertical
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function NotificacionesPage() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const [isLoading] = useState(false);
+ 
 
   // Datos de ejemplo para las notificaciones
   const notificaciones = [

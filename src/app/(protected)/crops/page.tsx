@@ -1,18 +1,10 @@
 "use client";
 
 import { ChevronDown, Filter, Plus, Sprout } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function CropsPage() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const [isLoading] = useState(false);
 
   return (
     <div className="space-y-6">

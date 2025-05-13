@@ -13,18 +13,10 @@ import {
 import { useEffect, useState } from "react";
 
 export default function LibraryPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Datos de ejemplo para las enfermedades
+  
   const enfermedades = [
     {
       id: 1,
@@ -76,14 +68,12 @@ export default function LibraryPage() {
     }
   ];
 
-  // Filtrar enfermedades basado en el término de búsqueda
   const enfermedadesFiltradas = enfermedades.filter(enfermedad => 
     enfermedad.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     enfermedad.nombreCientifico.toLowerCase().includes(searchTerm.toLowerCase()) ||
     enfermedad.cultivos.some(cultivo => cultivo.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  // Obtener color basado en el nivel de severidad
   const getNivelColor = (nivel: string) => {
     switch (nivel) {
       case "alto":

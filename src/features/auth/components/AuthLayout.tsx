@@ -38,6 +38,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
                 src="/favicon.ico"
                 alt="Ayni Logo"
                 className="w-12 h-12"
+                width={48}
+                height={48}
               />
             </div>
             <h1 className="text-3xl font-bold">Ayni</h1>
@@ -111,6 +113,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
                   src="/favicon.ico"
                   alt="Ayni Logo"
                   className="w-12 h-12"
+                  width={48}
+                  height={48}
                 />
               </div>
             </div>

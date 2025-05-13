@@ -1,18 +1,12 @@
 "use client";
 
-import { Home, Activity, TrendingUp, AlertCircle, Check, Droplet, Users } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Activity, AlertCircle, Check, Droplet, Home, TrendingUp, Users } from "lucide-react";
+import { useState } from "react";
 
 export default function DashboardPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  
 
   const stats = [
     {

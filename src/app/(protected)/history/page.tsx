@@ -10,18 +10,11 @@ import {
   CheckCircle2,
   Pill 
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function HistoryPage() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const [isLoading] = useState(false);
+ 
 
   return (
     <div className="space-y-6">

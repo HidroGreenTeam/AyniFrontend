@@ -12,19 +12,12 @@ import {
   Droplet,
   Sun
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function TreatmentsPage() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"activos" | "historial">("activos");
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
+ 
 
   return (
     <div className="space-y-6">
