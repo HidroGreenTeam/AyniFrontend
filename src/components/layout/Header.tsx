@@ -20,14 +20,13 @@ interface HeaderProps {
 
 const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
   const [notifications] = useState(3);
   const [user] = useState({
     fullName: "Carlos Mendoza",
     email: "carlos.mendoza@ejemplo.com",
     avatar: null
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading] = useState(true);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
  
@@ -72,7 +71,7 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
         {/* Acciones y perfil */}
         <div className="flex items-center space-x-1 md:space-x-3">
           {/* Solo mostramos las notificaciones y el botón de tema */}
-          {!showSearch && (
+         
             <>
               {/* Botón tema claro/oscuro */}
               <button
@@ -101,10 +100,8 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
                 )}
               </Link>
             </>
-          )}
-
           {/* Perfil de usuario - siempre visible */}
-          {!isLoading && !showSearch && (
+          {!isLoading && (
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}

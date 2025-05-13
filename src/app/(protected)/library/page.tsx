@@ -242,7 +242,7 @@ export default function LibraryPage() {
                 <AlertTriangle className="h-12 w-12 text-gray-400 dark:text-gray-500 mb-3" />
                 <h3 className="text-lg font-medium text-gray-800 dark:text-white">No se encontraron resultados</h3>
                 <p className="text-gray-600 dark:text-gray-300 mt-1">
-                  No hay enfermedades que coincidan con tu búsqueda "{searchTerm}".
+                  No hay enfermedades que coincidan con tu búsqueda &quot;{searchTerm}&quot;.
                 </p>
                 <button 
                   className="mt-4 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
