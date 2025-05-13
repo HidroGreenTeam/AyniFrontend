@@ -15,11 +15,10 @@ import NextImage from "next/image";
 
 interface SidebarProps {
   isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (isOpen: boolean) => void;
-  theme: string;
+  setIsMobileMenuOpen: (isOpen: boolean) => void; 
 }
 
-export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, theme }: SidebarProps) {
+export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen }: SidebarProps) {
   const pathname = usePathname();
 
   const navigation = [

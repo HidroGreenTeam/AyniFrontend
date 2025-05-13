@@ -34,7 +34,6 @@ export default function ProtectedLayout({ children }: { children: ReactNode }) {
       <Sidebar 
         isMobileMenuOpen={isMobileMenuOpen} 
         setIsMobileMenuOpen={setIsMobileMenuOpen}
-        theme={theme}
       />
 
       {/* Main content */}

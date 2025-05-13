@@ -6,13 +6,12 @@ const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { handleLogin, isLoading, formErrors } = useAuth();
-  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const success = await handleLogin(email, password);
+       await handleLogin(email, password);
     } catch (error) {
       console.error("Error during login:", error);
     }

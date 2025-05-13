@@ -17,11 +17,7 @@ const protectedPaths = [
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  const isPublicPath = publicPaths.some(
-    (path) => pathname === path || pathname.startsWith(`${path}/`),
-  );
-
+ 
   const isProtectedPath = protectedPaths.some(
     (path) => pathname === path || pathname.startsWith(`${path}/`),
   );

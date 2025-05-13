@@ -39,12 +39,9 @@ export const authService = {
       Cookies.set("auth_token", response.data.token, { expires: 7 });
 
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(
-          error.response.data.message || "Credenciales inválidas",
-        );
-      }
+    } catch (error) {
+
+       console.error("Error al iniciar sesión:", error);
       throw new Error("Error al conectar con el servidor");
     }
   },
@@ -64,12 +61,8 @@ export const authService = {
 
       const response = await axios.post("/auth/sign-up", userData);
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        throw new Error(
-          error.response.data.message || "Error al registrar usuario",
-        );
-      }
+    } catch (error) {
+     console.error("Error al registrar el usuario:", error);
       throw new Error("Error al conectar con el servidor");
     }
   },
@@ -97,6 +90,7 @@ export const authService = {
 
       return user;
     } catch (error) {
+      console.error("Error al decodificar el token:", error);
       this.logout();
       return null;
     }
@@ -113,6 +107,7 @@ export const authService = {
       const decoded = jwtDecode<JWTPayload>(token);
       return decoded.exp * 1000 > Date.now();
     } catch (error) {
+      console.error("Error al validar el token:", error);
       return false;
     }
   },

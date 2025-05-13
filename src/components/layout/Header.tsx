@@ -3,14 +3,11 @@
 import {
   Bell,
   LogOut,
-  Moon,
-  Search,
+  Moon, 
   Settings,
   Sun,
   User,
-  Menu,
-  X,
-  HelpCircle
+  Menu, 
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -27,7 +24,7 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
   const [showSearch, setShowSearch] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [notifications] = useState(3);
-  const [user, setUser] = useState({
+  const [user] = useState({
     fullName: "Carlos Mendoza",
     email: "carlos.mendoza@ejemplo.com",
     avatar: null
@@ -35,7 +32,6 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const pathname = usePathname();
 
   useEffect(() => {
     // Simular carga de datos del usuario
@@ -85,13 +81,6 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
   const handleLogout = () => {
     // Implementar lógica de cierre de sesión
     console.log("Cerrar sesión");
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Búsqueda:", searchValue);
-    // Implementar lógica de búsqueda
-    setShowSearch(false);
   };
 
   return (

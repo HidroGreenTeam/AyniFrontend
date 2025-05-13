@@ -119,11 +119,11 @@ export const useAuth = () => {
       router.push(redirectTo);
 
       return true;
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error during login:", error);
       setFormErrors((prev) => ({
         ...prev,
         general:
-          error.message ||
           "Error al iniciar sesión. Verifique sus credenciales.",
       }));
       return false;
@@ -151,11 +151,12 @@ export const useAuth = () => {
       await authService.register(fullName, email, password);
 
       return await handleLogin(email, password);
-    } catch (error: any) {
+    } catch (error) {
+      console.error("Error during registration:", error);
       setFormErrors((prev) => ({
         ...prev,
         general:
-          error.message || "Error al registrar cuenta. Intente nuevamente.",
+          "Error al registrar cuenta. Intente nuevamente.",
       }));
       return false;
     } finally {
