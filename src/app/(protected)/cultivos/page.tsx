@@ -149,7 +149,7 @@ export default function Cultivos() {
               <Leaf className="h-12 w-12 text-brown-primary/30 mx-auto mb-4" />
               <h3 className="font-medium text-brown-primary mb-2">No se encontraron cultivos</h3>
               <p className="text-brown-primary/60 mb-4">
-                No hay resultados para "{searchTerm}"
+                No hay resultados para  {searchTerm}
               </p>
               <button
                 onClick={() => setSearchTerm("")}
