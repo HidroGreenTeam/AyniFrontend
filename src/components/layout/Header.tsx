@@ -10,7 +10,6 @@ import {
   Menu, 
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
 interface HeaderProps {
@@ -22,7 +21,6 @@ interface HeaderProps {
 const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
   const [notifications] = useState(3);
   const [user] = useState({
     fullName: "Carlos Mendoza",
@@ -31,23 +29,9 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
   });
   const [isLoading, setIsLoading] = useState(true);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    // Simular carga de datos del usuario
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  // Enfocar input de búsqueda cuando se muestra
-  useEffect(() => {
-    if (showSearch && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [showSearch]);
+ 
+ 
 
   // Cerrar el menú de usuario cuando se hace clic fuera de él
   useEffect(() => {
@@ -63,20 +47,7 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
     };
   }, []);
 
-  // Cerrar búsqueda al presionar Escape
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && showSearch) {
-        setShowSearch(false);
-        setSearchValue("");
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [showSearch]);
+ 
 
   const handleLogout = () => {
     // Implementar lógica de cierre de sesión
