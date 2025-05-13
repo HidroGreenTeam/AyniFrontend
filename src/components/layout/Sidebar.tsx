@@ -1,158 +1,146 @@
 "use client";
 
-import {
-  AlertTriangle,
-  BookOpen,
-  CloudRain,
-  History,
-  LayoutDashboard,
-  Leaf,
-  Menu,
-  Settings,
-  Sprout,
-  X,
-} from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import {
+  Home,
+  AlertTriangle,
+  Pill,
+  ClipboardList,
+  BookOpen,
+  Sprout,
+  X
+} from "lucide-react";
+import NextImage from "next/image";
 
-const Sidebar = () => {
+interface SidebarProps {
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (isOpen: boolean) => void;
+  theme: string;
+}
+
+export default function Sidebar({ isMobileMenuOpen, setIsMobileMenuOpen, theme }: SidebarProps) {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const menuItems = [
-    {
-      name: "Panel",
-      href: "/",
-      icon: <LayoutDashboard className="h-5 w-5" />,
-    },
-    {
-      name: "Cultivos",
-      href: "/crops",
-      icon: <Sprout className="h-5 w-5" />,
-    },
-    {
-      name: "Diagnóstico",
-      href: "/diagnosis",
-      icon: <AlertTriangle className="h-5 w-5" />,
-    },
-    {
-      name: "Tratamientos",
-      href: "/treatments",
-      icon: <CloudRain className="h-5 w-5" />,
-    },
-    {
-      name: "Historial",
-      href: "/history",
-      icon: <History className="h-5 w-5" />,
-    },
-    {
-      name: "Biblioteca",
-      href: "/library",
-      icon: <BookOpen className="h-5 w-5" />,
-    },
-    {
-      name: "Configuración",
-      href: "/settings",
-      icon: <Settings className="h-5 w-5" />,
-    },
+  const navigation = [
+    { name: "Dashboard", href: "/dashboard", icon: Home },
+    { name: "Mis Cultivos", href: "/crops", icon: Sprout },
+    { name: "Diagnóstico", href: "/diagnosis", icon: AlertTriangle },
+    { name: "Tratamientos", href: "/treatments", icon: Pill },
+    { name: "Historial", href: "/history", icon: ClipboardList },
+    { name: "Biblioteca", href: "/library", icon: BookOpen },
   ];
 
   return (
     <>
-      {/* Mobile toggle button */}
-      <button
-        onClick={toggleSidebar}
-        className="lg:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-md shadow-md text-gray-600 hover:text-green-600"
-      >
-        {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-      </button>
-
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={toggleSidebar}
-        ></div>
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`
-          fixed lg:static inset-y-0 left-0 z-50 lg:z-0
-          w-64 bg-white shadow-md transform transition-transform duration-300 ease-in-out
-          flex flex-col
-          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
-      >
-        {/* Logo and brand */}
-        <div className="p-4 border-b">
-          <Link href="/" className="flex items-center space-x-3">
-                <Image
-                src="/favicon.ico"
-                alt="Ayni Logo"
-                width={30}
-                height={30}
-                className="h-14 w-14"
-              /> 
-            <div>
-              <h1 className="font-bold text-lg text-gray-800">Ayni</h1>
-              <p className="text-xs text-gray-500">Panel de administración</p>
+      {/* Sidebar for desktop */}
+      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
+        <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-gray-800 shadow-sm">
+          <div className="flex items-center h-16 flex-shrink-0 px-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center space-x-2">
+               <NextImage
+                    src="/favicon.ico"
+                    alt="Logo"
+                    width={32}
+                    height={32}
+                    className=" h-12 w-12"
+                  />
+              <div className="font-bold text-lg text-gray-800 dark:text-white">Ayni</div>
             </div>
-          </Link>
-        </div>
-
-        {/* Navigation links */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3">
-          <ul className="space-y-1">
-            {menuItems.map((item) => {
-              const isActive =
-                pathname === item.href || pathname.startsWith(`${item.href}/`);
-
-              return (
-                <li key={item.name}>
+          </div>
+          <div className="flex-1 flex flex-col overflow-y-auto pt-5 pb-4">
+            <nav className="mt-5 flex-1 px-2 space-y-1">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                return (
                   <Link
+                    key={item.name}
                     href={item.href}
-                    className={`
-                      flex items-center px-4 py-3 text-sm font-medium rounded-lg
-                      ${
-                        isActive
-                          ? "bg-green-50 text-green-700"
-                          : "text-gray-700 hover:bg-gray-100"
-                      }
-                      transition-colors duration-200
-                    `}
-                    onClick={() => setIsOpen(false)}
+                    className={`${isActive
+                      ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700/30 dark:hover:text-white"
+                      } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
                   >
-                    <span
-                      className={`${isActive ? "text-green-600" : "text-gray-500"} mr-3`}
-                    >
-                      {item.icon}
-                    </span>
+                    <item.icon
+                      className={`${isActive
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-gray-400 group-hover:text-gray-500 dark:text-gray-400 dark:group-hover:text-gray-300"
+                        } mr-3 flex-shrink-0 h-5 w-5`}
+                    />
                     {item.name}
-
-                    {isActive && (
-                      <span className="ml-auto w-1.5 h-5 bg-green-600 rounded-full"></span>
-                    )}
                   </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        {/* Version info */}
-        <div className="p-4 border-t text-xs text-gray-500">
-          <p>Ayni v1.0.0</p>
+                );
+              })}
+            </nav>
+          </div>
         </div>
-      </aside>
+      </div>
+
+      {/* Mobile menu, show/hide based on menu state */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-40 bg-gray-600 bg-opacity-75">
+          <div className="fixed inset-0 flex z-40">
+            <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white dark:bg-gray-800 shadow-xl">
+              <div className="absolute top-0 right-0 pt-2 pr-2">
+                <button
+                  type="button"
+                  className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <span className="sr-only">Cerrar menú</span>
+                  <X className="h-6 w-6 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+                </button>
+              </div>
+              <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+                <div className="flex-shrink-0 flex items-center px-4">
+                  <NextImage
+                    src="/favicon.ico"
+                    alt="Logo"
+                    width={32}
+                    height={32}
+                    className=" h-12 w-12"
+                  />
+                  <div className="font-bold text-lg text-gray-800 dark:text-white ml-2">Ayni</div>
+                </div>
+                <nav className="mt-5 px-2 space-y-1">
+                  {navigation.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={`${isActive
+                          ? "bg-green-50 text-green-600 dark:bg-green-900/20 dark:text-green-400"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700/30 dark:hover:text-white"
+                          } group flex items-center px-2 py-2 text-base font-medium rounded-md`}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon
+                          className={`${isActive
+                            ? "text-green-600 dark:text-green-400"
+                            : "text-gray-400 group-hover:text-gray-500 dark:text-gray-400 dark:group-hover:text-gray-300"
+                            } mr-4 flex-shrink-0 h-6 w-6`}
+                        />
+                        {item.name}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
+              <div className="flex-shrink-0 flex items-center p-4 border-t border-gray-200 dark:border-gray-700">
+                <div className="flex-shrink-0">
+                  <div className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600"></div>
+                </div>
+                <div className="ml-3">
+                  <div className="text-base font-medium text-gray-800 dark:text-white">Usuario</div>
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">Agricultor</div>
+                </div>
+              </div>
+            </div>
+            <div className="flex-shrink-0 w-14" aria-hidden="true" />
+          </div>
+        </div>
+      )}
     </>
   );
-};
-
-export default Sidebar;
+}
