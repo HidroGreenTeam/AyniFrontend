@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Loader2, Upload, X } from "lucide-react";
+import Image from "next/image";
 
 export default function NuevoCultivo() {
   const router = useRouter();
@@ -161,7 +162,7 @@ export default function NuevoCultivo() {
             
             {selectedImage ? (
               <div className="relative rounded-lg overflow-hidden">
-                <img 
+                <Image 
                   src={selectedImage} 
                   alt="Vista previa" 
                   className="w-full h-32 object-cover"

@@ -4,6 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronLeft, AlertTriangle, Download, Share2, Leaf } from "lucide-react";
+import Image from "next/image";
 
 export default function ResultadoDiagnostico() {
   // En producción, estos datos vendrían de la API
@@ -71,7 +72,7 @@ export default function ResultadoDiagnostico() {
         <div className="p-6">
           {/* Imagen de la planta */}
           <div className="mb-6">
-            <img 
+            <Image       
               src={diagnostico.imagen} 
               alt="Imagen diagnóstico" 
               className="w-full h-48 object-cover rounded-lg"

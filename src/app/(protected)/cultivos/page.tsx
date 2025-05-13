@@ -4,6 +4,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, Search, Leaf, Edit, Trash2, MoreVertical } from "lucide-react";
+import Image from "next/image";
 
 export default function Cultivos() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -81,7 +82,7 @@ export default function Cultivos() {
             >
               {/* Imagen del cultivo */}
               <div className="h-36 overflow-hidden">
-                <img 
+                <Image 
                   src={cultivo.imagenUrl} 
                   alt={cultivo.nombre} 
                   className="w-full h-full object-cover"

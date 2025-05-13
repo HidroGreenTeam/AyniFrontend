@@ -4,6 +4,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, Upload, X, Check, Loader2 } from "lucide-react";
+import Image from "next/image";
 
 export default function NuevoDiagnostico() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -161,7 +162,7 @@ export default function NuevoDiagnostico() {
       ) : (
         <div className="bg-white p-4 rounded-xl shadow-sm">
           <div className="relative mb-4">
-            <img 
+            <Image 
               src={selectedImage || ""} 
               alt="Imagen seleccionada" 
               className="w-full rounded-lg object-contain max-h-80"
