@@ -4,11 +4,14 @@ import { NextResponse } from "next/server";
 const publicPaths = ["/", "/login", "/register"];
 
 const protectedPaths = [
+  "/dashboard",
   "/crops",
   "/diagnosis",
   "/treatments",
   "/history",
   "/library",
+  "/notifications",
+  "/profile",
   "/settings",
 ];
 
