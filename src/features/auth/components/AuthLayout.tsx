@@ -1,6 +1,7 @@
 import { CloudRain, Leaf, Sprout } from "lucide-react";
 import Link from "next/link";
 import React from "react";
+import Image from "next/image";
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -33,7 +34,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         <div className="z-10 text-white">
           <div className="mb-8 flex items-center">
             <div className="bg-white rounded-full p-3 mr-4">
-              <img
+              <Image
                 src="/favicon.ico"
                 alt="Ayni Logo"
                 className="w-12 h-12"
@@ -106,7 +107,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
           <div className="bg-white rounded-2xl shadow-xl p-8 border border-green-100">
             <div className="flex justify-center mb-6 lg:hidden">
               <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-full p-3">
-                <img
+                <Image
                   src="/favicon.ico"
                   alt="Ayni Logo"
                   className="w-12 h-12"
