@@ -1,18 +1,17 @@
 "use client";
 
-import { 
-  Pill, 
-  Search, 
-  Filter, 
-  ChevronDown, 
-  Clock, 
-  Check, 
+import {
   AlertTriangle,
+  Check,
   CheckCircle2,
-  Droplet,
-  Sun,
+  ChevronDown,
+  Clock,
   Cloud,
-  Thermometer
+  Droplet,
+  Filter,
+  Pill,
+  Search,
+  Sun
 } from "lucide-react";
 import { useState } from "react";
 
