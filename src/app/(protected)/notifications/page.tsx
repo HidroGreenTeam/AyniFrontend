@@ -1,14 +1,13 @@
 "use client";
 
-import { 
-  Bell, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Clock, 
-  Pill, 
-  Droplet,
-  Trash2,
-  MoreVertical
+import {
+  AlertTriangle,
+  Bell,
+  CheckCircle2,
+  Clock,
+  MoreVertical,
+  Pill,
+  Trash2
 } from "lucide-react";
 import { useState } from "react";
 
@@ -42,15 +41,6 @@ export default function NotificacionesPage() {
       icono: <Pill className="h-5 w-5 text-purple-600 dark:text-purple-400" />,
       titulo: "Tratamiento completado",
       mensaje: "El tratamiento para Tizón temprano en Tomates Cherry ha sido completado con éxito.",
-      tiempo: "Ayer",
-      leido: true
-    },
-    {
-      id: 4,
-      tipo: "recordatorio",
-      icono: <Droplet className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
-      titulo: "Recordatorio de riego",
-      mensaje: "Es hora de regar tus Lechugas en Huerto 2.",
       tiempo: "Ayer",
       leido: true
     },

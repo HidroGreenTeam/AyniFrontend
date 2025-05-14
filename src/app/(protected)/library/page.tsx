@@ -1,16 +1,16 @@
 "use client";
 
-import { 
-  BookOpen, 
-  Search, 
-  Filter, 
-  ChevronDown, 
-  AlertTriangle, 
+import {
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  ChevronDown,
+  Filter,
   Info,
   Leaf,
-  ArrowRight
+  Search
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function LibraryPage() {
   const [isLoading] = useState(false);
@@ -20,58 +20,74 @@ export default function LibraryPage() {
   const enfermedades = [
     {
       id: 1,
-      nombre: "Mildiú polvoso",
-      nombreCientifico: "Erysiphe cichoracearum",
-      cultivos: ["Fresas", "Tomates", "Calabaza"],
+      nombre: "Roya del café",
+      nombreCientifico: "Hemileia vastatrix",
+      variedades: ["Typica", "Bourbon", "Catuai", "Caturra"],
       nivel: "alto",
-      descripcion: "Enfermedad fúngica que produce un polvo blanco en la superficie de las hojas."
+      descripcion: "Causa manchas amarillentas en el envés de las hojas que evolucionan a lesiones con polvo anaranjado, provocando defoliación severa."
     },
     {
       id: 2,
-      nombre: "Tizón temprano",
-      nombreCientifico: "Alternaria solani",
-      cultivos: ["Tomates", "Patatas"],
-      nivel: "alto",
-      descripcion: "Causa manchas necróticas con anillos concéntricos en hojas más viejas."
+      nombre: "Ojo de gallo",
+      nombreCientifico: "Mycena citricolor",
+      variedades: ["Bourbon", "Typica", "Caturra"],
+      nivel: "medio",
+      descripcion: "Produce manchas circulares de color café claro a oscuro en las hojas, que pueden caer dejando agujeros."
     },
     {
       id: 3,
-      nombre: "Roya",
-      nombreCientifico: "Puccinia spp.",
-      cultivos: ["Maíz", "Frijoles"],
+      nombre: "Antracnosis",
+      nombreCientifico: "Colletotrichum coffeanum",
+      variedades: ["Catuai", "Catimor", "Bourbon"],
       nivel: "medio",
-      descripcion: "Provoca pústulas de color óxido o marrón en hojas y tallos."
+      descripcion: "Afecta frutos, hojas y brotes tiernos causando lesiones necróticas hundidas con bordes definidos."
     },
     {
       id: 4,
-      nombre: "Mancha bacteriana",
-      nombreCientifico: "Xanthomonas campestris",
-      cultivos: ["Pimientos", "Tomates"],
-      nivel: "medio",
-      descripcion: "Causa pequeñas manchas oscuras rodeadas de halos amarillentos."
+      nombre: "Mal de hilachas",
+      nombreCientifico: "Pellicularia koleroga",
+      variedades: ["Typica", "Bourbon", "Geisha"],
+      nivel: "alto",
+      descripcion: "Hongo que forma filamentos blanquecinos sobre ramas y hojas, causando que estas se sequen y queden suspendidas por hilos miceliares."
     },
     {
       id: 5,
-      nombre: "Verticilosis",
-      nombreCientifico: "Verticillium dahliae",
-      cultivos: ["Berenjena", "Patatas", "Fresas"],
+      nombre: "CBD (Coffee Berry Disease)",
+      nombreCientifico: "Colletotrichum kahawae",
+      variedades: ["Arabica", "Typica", "Bourbon"],
       nivel: "alto",
-      descripcion: "Marchitamiento que comienza en hojas inferiores y progresa hacia arriba."
+      descripcion: "Afecta principalmente los frutos en desarrollo, causando lesiones hundidas oscuras y momificación del grano."
     },
     {
       id: 6,
-      nombre: "Mosaico del tabaco",
-      nombreCientifico: "Tobacco mosaic virus (TMV)",
-      cultivos: ["Tomates", "Pimientos", "Tabaco"],
-      nivel: "bajo",
-      descripcion: "Virus que causa patrón de mosaico en hojas y crecimiento atrofiado."
+      nombre: "Mancha de hierro",
+      nombreCientifico: "Cercospora coffeicola",
+      variedades: ["Caturra", "Catuai", "Catimor"],
+      nivel: "medio",
+      descripcion: "Causa manchas circulares con centro grisáceo y borde rojizo en hojas, similares a óxido. Puede afectar también los frutos."
+    },
+    {
+      id: 7,
+      nombre: "Broca del café",
+      nombreCientifico: "Hypothenemus hampei",
+      variedades: ["Todas las variedades"],
+      nivel: "alto",
+      descripcion: "Insecto barrenador que perfora los frutos y se alimenta de los granos, causando pérdidas significativas en rendimiento y calidad."
+    },
+    {
+      id: 8,
+      nombre: "Nematodos del café",
+      nombreCientifico: "Meloidogyne spp.",
+      variedades: ["Typica", "Bourbon", "Mundo Novo"],
+      nivel: "medio",
+      descripcion: "Atacan el sistema radicular formando nódulos que impiden la absorción de nutrientes, causando debilitamiento general."
     }
   ];
 
   const enfermedadesFiltradas = enfermedades.filter(enfermedad => 
     enfermedad.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
     enfermedad.nombreCientifico.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    enfermedad.cultivos.some(cultivo => cultivo.toLowerCase().includes(searchTerm.toLowerCase()))
+    enfermedad.variedades.some(variedad => variedad.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getNivelColor = (nivel: string) => {
@@ -105,10 +121,10 @@ export default function LibraryPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
           <BookOpen className="mr-2 h-6 w-6 text-green-600" />
-          Biblioteca de Enfermedades
+          Biblioteca de Enfermedades del Café
         </h1>
         <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Consulta información detallada sobre enfermedades comunes en cultivos
+          Consulta información detallada sobre enfermedades comunes en cafetales
         </p>
       </div>
 
@@ -122,7 +138,7 @@ export default function LibraryPage() {
             <input
               type="text"
               className="block w-full pl-10 pr-3 py-2 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="Buscar por nombre, cultivo afectado..."
+              placeholder="Buscar por nombre, variedad afectada..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -132,11 +148,13 @@ export default function LibraryPage() {
               <div className="flex items-center p-2 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 gap-1">
                 <Filter className="h-4 w-4 text-gray-400" />
                 <select className="appearance-none bg-transparent text-gray-800 dark:text-white text-sm focus:outline-none pr-6">
-                  <option>Todos los cultivos</option>
-                  <option>Tomates</option>
-                  <option>Patatas</option>
-                  <option>Fresas</option>
-                  <option>Maíz</option>
+                  <option>Todas las variedades</option>
+                  <option>Typica</option>
+                  <option>Bourbon</option>
+                  <option>Caturra</option>
+                  <option>Catuai</option>
+                  <option>Catimor</option>
+                  <option>Geisha</option>
                 </select>
                 <ChevronDown className="absolute right-2 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
@@ -163,8 +181,8 @@ export default function LibraryPage() {
         <div>
           <h3 className="font-medium text-blue-800 dark:text-blue-300">Información importante</h3>
           <p className="text-sm text-blue-700 dark:text-blue-200 mt-1">
-            Esta biblioteca contiene información sobre las enfermedades más comunes que afectan a los cultivos en Perú.
-            La información proporcionada es de carácter educativo. En caso de dudas, consulta con un especialista agrónomo.
+            Esta biblioteca contiene información sobre las enfermedades más comunes que afectan a los cafetales en Perú.
+            La información proporcionada es de carácter educativo. Para un diagnóstico preciso, consulta con un especialista agrónomo.
           </p>
         </div>
       </div>
@@ -200,15 +218,15 @@ export default function LibraryPage() {
                     <div className="mt-3">
                       <div className="flex items-center mb-2">
                         <Leaf className="h-4 w-4 text-green-600 dark:text-green-400 mr-2" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Cultivos afectados:</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Variedades afectadas:</span>
                       </div>
                       <div className="flex flex-wrap gap-1 ml-6">
-                        {enfermedad.cultivos.map((cultivo, idx) => (
+                        {enfermedad.variedades.map((variedad, idx) => (
                           <span 
                             key={idx} 
                             className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-2 py-1 rounded"
                           >
-                            {cultivo}
+                            {variedad}
                           </span>
                         ))}
                       </div>

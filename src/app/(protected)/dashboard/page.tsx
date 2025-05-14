@@ -1,19 +1,17 @@
 "use client";
 
-import { Activity, AlertCircle, Check, Droplet, Home, TrendingUp, Users } from "lucide-react";
+import { Activity, AlertCircle, Coffee, TrendingUp, Users } from "lucide-react";
 import { useState } from "react";
 
 export default function DashboardPage() {
   const [isLoading] = useState(false);
 
-  
-
   const stats = [
     {
-      name: "Cultivos activos",
+      name: "Parcelas de café",
       value: "8",
       change: "+2",
-      icon: <Home className="h-6 w-6 text-green-600" />,
+      icon: <Coffee className="h-6 w-6 text-green-600" />,
     },
     {
       name: "Diagnósticos este mes",
@@ -40,11 +38,11 @@ export default function DashboardPage() {
       {/* Encabezado de página */}
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
-          <Home className="mr-2 h-6 w-6 text-green-600" />
-          Dashboard
+          <Coffee className="mr-2 h-6 w-6 text-green-600" />
+          Dashboard Cafetalero
         </h1>
         <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Bienvenido de nuevo. Aquí tienes un resumen de tus cultivos y actividades recientes.
+          Bienvenido de nuevo. Aquí tienes un resumen de tus cultivos de café y actividades recientes.
         </p>
       </div>
 
@@ -97,14 +95,14 @@ export default function DashboardPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Cultivos recientes */}
+        {/* Parcelas de café */}
         <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-medium text-gray-800 dark:text-white">
-              Cultivos recientes
+              Parcelas de café
             </h2>
             <button className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-              Ver todos
+              Ver todas
             </button>
           </div>
           
@@ -126,7 +124,7 @@ export default function DashboardPage() {
                 <div className="h-16 w-16 rounded-lg bg-gradient-to-r from-green-500 to-green-600"></div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-800 dark:text-white">Tomates Cherry</h3>
+                    <h3 className="font-medium text-gray-800 dark:text-white">Café Caturra</h3>
                     <span className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
                       Saludable
                     </span>
@@ -141,7 +139,7 @@ export default function DashboardPage() {
                 <div className="h-16 w-16 rounded-lg bg-gradient-to-r from-yellow-400 to-yellow-500"></div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-800 dark:text-white">Lechugas</h3>
+                    <h3 className="font-medium text-gray-800 dark:text-white">Café Bourbon</h3>
                     <span className="text-xs bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded-full">
                       En observación
                     </span>
@@ -156,7 +154,7 @@ export default function DashboardPage() {
                 <div className="h-16 w-16 rounded-lg bg-gradient-to-r from-red-500 to-red-600"></div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-medium text-gray-800 dark:text-white">Fresas</h3>
+                    <h3 className="font-medium text-gray-800 dark:text-white">Café Typica</h3>
                     <span className="text-xs bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-1 rounded-full">
                       Enfermo
                     </span>
@@ -200,7 +198,7 @@ export default function DashboardPage() {
                 <div>
                   <h3 className="font-medium text-gray-800 dark:text-white">Posible sequía</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Las lechugas muestran signos de estrés hídrico.
+                    El café Bourbon muestra signos de estrés hídrico.
                   </p>
                   <button className="mt-2 text-xs text-yellow-700 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-300">
                     Ver detalles
@@ -211,9 +209,9 @@ export default function DashboardPage() {
               <div className="flex items-start space-x-3 p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
                 <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
                 <div>
-                  <h3 className="font-medium text-gray-800 dark:text-white">Enfermedad detectada</h3>
+                  <h3 className="font-medium text-gray-800 dark:text-white">Roya del café detectada</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Mildiú polvoso en fresas - Tratamiento requerido.
+                    Hemileia vastatrix en Typica - Tratamiento requerido.
                   </p>
                   <button className="mt-2 text-xs text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
                     Ver tratamiento
@@ -256,7 +254,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-800 dark:text-white">
-                  Nuevo diagnóstico realizado en <span className="font-medium">Lechugas</span>
+                  Nuevo diagnóstico realizado en <span className="font-medium">Café Bourbon</span>
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Hoy, 10:23 AM</p>
               </div>
@@ -268,35 +266,13 @@ export default function DashboardPage() {
               </div>
               <div>
                 <p className="text-sm text-gray-800 dark:text-white">
-                  Se detectó <span className="font-medium">Mildiú polvoso</span> en Fresas
+                  Se detectó <span className="font-medium">Roya del café</span> en variedad Typica
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Ayer, 3:45 PM</p>
               </div>
             </div>
             
-            <div className="flex items-start">
-              <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mr-3">
-                <Droplet className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-800 dark:text-white">
-                  Riego programado completado para <span className="font-medium">Tomates Cherry</span>
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Ayer, 8:30 AM</p>
-              </div>
-            </div>
             
-            <div className="flex items-start">
-              <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mr-3">
-                <Check className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-800 dark:text-white">
-                  Tratamiento aplicado a <span className="font-medium">Fresas</span>
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Hace 2 días</p>
-              </div>
-            </div>
           </div>
         )}
       </div>
@@ -310,9 +286,9 @@ export default function DashboardPage() {
           <div>
             <h3 className="text-base font-medium text-gray-800 dark:text-white">Consejo del día</h3>
             <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-              Para prevenir el mildiú polvoso, mejora la circulación de aire entre plantas y evita
-              regar por encima de las hojas. Mantén una distancia adecuada entre plantas para
-              reducir la humedad.
+              Para prevenir la roya del café, mantenga un buen sistema de drenaje y pode regularmente 
+              para mejorar la circulación de aire. Considere aplicar fungicidas preventivos durante 
+              la temporada húmeda y monitoree sus plantas frecuentemente.
             </p>
             <button className="mt-3 text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
               Ver más consejos

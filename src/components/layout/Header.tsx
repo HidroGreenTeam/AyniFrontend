@@ -4,14 +4,14 @@ import { authService } from "@/features/auth/services/authService";
 import {
   Bell,
   LogOut,
+  Menu,
   Moon,
   Settings,
   Sun,
-  User,
-  Menu
+  User
 } from "lucide-react";
-import Link from "next/link"; 
-import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 interface HeaderProps {
   toggleTheme: () => void;

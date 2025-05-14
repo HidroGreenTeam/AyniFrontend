@@ -1,38 +1,122 @@
 "use client";
 
 import {
-    User,
-    Mail,
-    Phone,
-    MapPin,
+    AlertTriangle,
     Briefcase,
     Calendar,
     Camera,
+    Check,
     Edit,
-    Save
+    Mail,
+    MapPin,
+    Phone,
+    Save,
+    User,
+    X
 } from "lucide-react";
-import { useState } from "react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
-    const [isEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    
+    // Estado original del perfil
+    const [perfilOriginal, setPerfilOriginal] = useState({
+        nombre: "",
+        email: "",
+        telefono: "",
+        ubicacion: "",
+        ocupacion: "",
+        fechaRegistro: "",
+        bio: "",
+        avatar: "/placeholder.svg"
+    });
+    
+    // Estado actual del perfil (para edición)
     const [perfil, setPerfil] = useState({
-        nombre: "Carlos Mendoza",
-        email: "carlos.mendoza@ejemplo.com",
-        telefono: "+51 987 654 321",
-        ubicacion: "Lima, Perú",
-        ocupacion: "Agricultor",
-        fechaRegistro: "Enero 2025",
-        bio: "Agricultor experimentado con más de 15 años cultivando diversas hortalizas y frutas en la región de Lima. Especializado en agricultura sostenible y control de plagas mediante métodos naturales.",
+        nombre: "",
+        email: "",
+        telefono: "",
+        ubicacion: "",
+        ocupacion: "",
+        fechaRegistro: "",
+        bio: "",
         avatar: "/placeholder.svg"
     });
 
-    // Add state for notification preferences
+    // Datos del formulario con validación
+    const [formErrors, setFormErrors] = useState({
+        nombre: "",
+        email: "",
+        telefono: "",
+        ubicacion: "",
+        ocupacion: "",
+        bio: ""
+    });
+
+    // Estado para notificaciones
     const [notificationPrefs, setNotificationPrefs] = useState({
         alertasEnfermedades: true,
         recordatoriosTratamientos: true,
         consejosRecomendaciones: false
     });
+
+    // Simular carga de datos del usuario
+    useEffect(() => {
+        // En un caso real, aquí cargarías los datos del usuario desde la API
+        const userData = {
+            nombre: "Carlos Mendoza",
+            email: "carlos.mendoza@ejemplo.com",
+            telefono: "+51 987 654 321",
+            ubicacion: "Lima, Perú",
+            ocupacion: "Agricultor",
+            fechaRegistro: "Enero 2025",
+            bio: "Agricultor experimentado con más de 15 años cultivando diversas hortalizas y frutas en la región de Lima. Especializado en agricultura sostenible y control de plagas mediante métodos naturales.",
+            avatar: "/placeholder.svg"
+        };
+        
+        setPerfil(userData);
+        setPerfilOriginal(userData);
+    }, []);
+
+    const validateForm = () => {
+        let isValid = true;
+        const errors = {
+            nombre: "",
+            email: "",
+            telefono: "",
+            ubicacion: "",
+            ocupacion: "",
+            bio: ""
+        };
+        
+        // Validación del nombre
+        if (!perfil.nombre.trim()) {
+            errors.nombre = "El nombre es obligatorio";
+            isValid = false;
+        }
+        
+        // Validación del email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!perfil.email.trim()) {
+            errors.email = "El email es obligatorio";
+            isValid = false;
+        } else if (!emailRegex.test(perfil.email)) {
+            errors.email = "Formato de email inválido";
+            isValid = false;
+        }
+        
+        // Validación del teléfono (opcional)
+        if (perfil.telefono.trim() && !/^[+]?[\d\s()-]{7,}$/.test(perfil.telefono)) {
+            errors.telefono = "Formato de teléfono inválido";
+            isValid = false;
+        }
+        
+        setFormErrors(errors);
+        return isValid;
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -40,15 +124,70 @@ export default function ProfilePage() {
             ...prev,
             [name]: value
         }));
+        
+        // Limpiar error cuando el usuario está escribiendo
+        if (formErrors[name as keyof typeof formErrors]) {
+            setFormErrors(prev => ({
+                ...prev,
+                [name]: ""
+            }));
+        }
     };
 
-    // Add handler for checkbox changes
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
         setNotificationPrefs(prev => ({
             ...prev,
             [name]: checked
         }));
+    };
+    
+    const handleEditToggle = () => {
+        if (isEditing) {
+            // Si estamos cancelando la edición, restauramos el estado original
+            setPerfil(perfilOriginal);
+            setFormErrors({
+                nombre: "",
+                email: "",
+                telefono: "",
+                ubicacion: "",
+                ocupacion: "",
+                bio: ""
+            });
+        }
+        setIsEditing(!isEditing);
+    };
+    
+    const handleSaveProfile = () => {
+        if (!validateForm()) {
+            setErrorMessage("Por favor, corrige los errores antes de guardar.");
+            setTimeout(() => setErrorMessage(""), 5000);
+            return;
+        }
+        
+        // Aquí enviarías los datos a tu API
+        console.log("Guardando perfil:", perfil);
+        
+        // Actualizar el perfil original con los nuevos datos
+        setPerfilOriginal({...perfil});
+        setIsEditing(false);
+        
+        // Mostrar mensaje de éxito
+        setSuccessMessage("¡Perfil actualizado correctamente!");
+        setTimeout(() => setSuccessMessage(""), 5000);
+    };
+    
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            // En un caso real, aquí subirías la imagen a tu servidor
+            // Por ahora solo simulamos el cambio con URL.createObjectURL
+            const imageUrl = URL.createObjectURL(file);
+            setPerfil(prev => ({
+                ...prev,
+                avatar: imageUrl
+            }));
+        }
     };
 
     return (
@@ -63,18 +202,65 @@ export default function ProfilePage() {
                     Gestiona tu información personal y preferencias
                 </p>
             </div>
+            
+            {/* Mensajes de notificación */}
+            {successMessage && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center" role="alert">
+                    <Check className="h-5 w-5 mr-2" />
+                    <span>{successMessage}</span>
+                    <button 
+                        className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onClick={() => setSuccessMessage("")}
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
+            
+            {errorMessage && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center" role="alert">
+                    <AlertTriangle className="h-5 w-5 mr-2" />
+                    <span>{errorMessage}</span>
+                    <button 
+                        className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onClick={() => setErrorMessage("")}
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                {/* Encabezado de perfil */}
+                {/* Encabezado de perfil con banner */}
                 <div className="bg-gradient-to-r from-green-500 to-green-600 h-32 relative">
-                    <button
-                        className="absolute top-4 right-4 bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-shadow"
-                    >
-                        {isEditing ?
-                            <Save className="h-5 w-5 text-green-600" /> :
-                            <Edit className="h-5 w-5 text-green-600" />
-                        }
-                    </button>
+                    <div className="absolute top-4 right-4 flex space-x-2">
+                        {isEditing ? (
+                            <>
+                                <button
+                                    onClick={handleSaveProfile}
+                                    className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-shadow flex items-center justify-center"
+                                    title="Guardar cambios"
+                                >
+                                    <Save className="h-5 w-5 text-green-600" />
+                                </button>
+                                <button
+                                    onClick={handleEditToggle}
+                                    className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-shadow flex items-center justify-center"
+                                    title="Cancelar"
+                                >
+                                    <X className="h-5 w-5 text-red-600" />
+                                </button>
+                            </>
+                        ) : (
+                            <button
+                                onClick={handleEditToggle}
+                                className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-shadow flex items-center justify-center"
+                                title="Editar perfil"
+                            >
+                                <Edit className="h-5 w-5 text-green-600" />
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <div className="px-6 pb-6">
@@ -92,20 +278,33 @@ export default function ProfilePage() {
                             {isEditing && (
                                 <label className="absolute bottom-0 right-0 bg-green-600 text-white p-2 rounded-full cursor-pointer shadow-sm hover:bg-green-700 transition-colors">
                                     <Camera className="h-4 w-4" />
-                                    <input type="file" className="hidden" accept="image/*" />
+                                    <input 
+                                        type="file" 
+                                        className="hidden" 
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                    />
                                 </label>
                             )}
                         </div>
 
                         <div className="mt-4 sm:mt-0 flex-1">
                             {isEditing ? (
-                                <input
-                                    type="text"
-                                    name="nombre"
-                                    value={perfil.nombre}
-                                    onChange={handleInputChange}
-                                    className="text-2xl font-bold text-gray-800 dark:text-white bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-green-500 w-full"
-                                />
+                                <div>
+                                    <input
+                                        type="text"
+                                        name="nombre"
+                                        value={perfil.nombre}
+                                        onChange={handleInputChange}
+                                        className={`text-2xl font-bold text-gray-800 dark:text-white bg-transparent border-b ${
+                                            formErrors.nombre ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                        } focus:outline-none focus:border-green-500 w-full`}
+                                        placeholder="Tu nombre completo"
+                                    />
+                                    {formErrors.nombre && (
+                                        <p className="text-red-500 text-xs mt-1">{formErrors.nombre}</p>
+                                    )}
+                                </div>
                             ) : (
                                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{perfil.nombre}</h2>
                             )}
@@ -122,85 +321,110 @@ export default function ProfilePage() {
                             <h3 className="text-lg font-medium text-gray-800 dark:text-white">Información de contacto</h3>
 
                             <div className="space-y-3">
-                                <div className="flex items-center text-gray-600 dark:text-gray-300">
-                                    <Mail className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
-                                    {isEditing ? (
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            value={perfil.email}
-                                            onChange={handleInputChange}
-                                            className="bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-green-500 w-full"
-                                        />
-                                    ) : (
-                                        <span>{perfil.email}</span>
-                                    )}
+                                <div className="flex flex-col">
+                                    <div className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <Mail className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
+                                        {isEditing ? (
+                                            <div className="flex-1">
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    value={perfil.email}
+                                                    onChange={handleInputChange}
+                                                    className={`bg-transparent border-b ${
+                                                        formErrors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                                    } focus:outline-none focus:border-green-500 w-full`}
+                                                    placeholder="tu.email@ejemplo.com"
+                                                />
+                                                {formErrors.email && (
+                                                    <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span>{perfil.email}</span>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="flex items-center text-gray-600 dark:text-gray-300">
-                                    <Phone className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
-                                    {isEditing ? (
-                                        <input
-                                            type="tel"
-                                            name="telefono"
-                                            value={perfil.telefono}
-                                            onChange={handleInputChange}
-                                            className="bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-green-500 w-full"
-                                        />
-                                    ) : (
-                                        <span>{perfil.telefono}</span>
-                                    )}
+                                <div className="flex flex-col">
+                                    <div className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <Phone className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
+                                        {isEditing ? (
+                                            <div className="flex-1">
+                                                <input
+                                                    type="tel"
+                                                    name="telefono"
+                                                    value={perfil.telefono}
+                                                    onChange={handleInputChange}
+                                                    className={`bg-transparent border-b ${
+                                                        formErrors.telefono ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                                    } focus:outline-none focus:border-green-500 w-full`}
+                                                    placeholder="+00 000 000 000"
+                                                />
+                                                {formErrors.telefono && (
+                                                    <p className="text-red-500 text-xs mt-1">{formErrors.telefono}</p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span>{perfil.telefono}</span>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="flex items-center text-gray-600 dark:text-gray-300">
-                                    <MapPin className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="ubicacion"
-                                            value={perfil.ubicacion}
-                                            onChange={handleInputChange}
-                                            className="bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-green-500 w-full"
-                                        />
-                                    ) : (
-                                        <span>{perfil.ubicacion}</span>
-                                    )}
+                                <div className="flex flex-col">
+                                    <div className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <MapPin className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
+                                        {isEditing ? (
+                                            <div className="flex-1">
+                                                <input
+                                                    type="text"
+                                                    name="ubicacion"
+                                                    value={perfil.ubicacion}
+                                                    onChange={handleInputChange}
+                                                    className={`bg-transparent border-b ${
+                                                        formErrors.ubicacion ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                                    } focus:outline-none focus:border-green-500 w-full`}
+                                                    placeholder="Ciudad, País"
+                                                />
+                                                {formErrors.ubicacion && (
+                                                    <p className="text-red-500 text-xs mt-1">{formErrors.ubicacion}</p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span>{perfil.ubicacion}</span>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="flex items-center text-gray-600 dark:text-gray-300">
-                                    <Briefcase className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
-                                    {isEditing ? (
-                                        <input
-                                            type="text"
-                                            name="ocupacion"
-                                            value={perfil.ocupacion}
-                                            onChange={handleInputChange}
-                                            className="bg-transparent border-b border-gray-300 dark:border-gray-600 focus:outline-none focus:border-green-500 w-full"
-                                        />
-                                    ) : (
-                                        <span>{perfil.ocupacion}</span>
-                                    )}
+                                <div className="flex flex-col">
+                                    <div className="flex items-center text-gray-600 dark:text-gray-300">
+                                        <Briefcase className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
+                                        {isEditing ? (
+                                            <div className="flex-1">
+                                                <input
+                                                    type="text"
+                                                    name="ocupacion"
+                                                    value={perfil.ocupacion}
+                                                    onChange={handleInputChange}
+                                                    className={`bg-transparent border-b ${
+                                                        formErrors.ocupacion ? 'border-red-500' : 'border-gray-300 dark:border-gray-600' 
+                                                    } focus:outline-none focus:border-green-500 w-full`}
+                                                    placeholder="Tu ocupación"
+                                                />
+                                                {formErrors.ocupacion && (
+                                                    <p className="text-red-500 text-xs mt-1">{formErrors.ocupacion}</p>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span>{perfil.ocupacion}</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="space-y-4">
-                            <h3 className="text-lg font-medium text-gray-800 dark:text-white">Biografía</h3>
-
-                            {isEditing ? (
-                                <textarea
-                                    name="bio"
-                                    value={perfil.bio}
-                                    onChange={handleInputChange}
-                                    rows={5}
-                                    className="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md p-3 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
-                                ></textarea>
-                            ) : (
-                                <p className="text-gray-600 dark:text-gray-300">
-                                    {perfil.bio}
-                                </p>
-                            )}
-                        </div>
+                        
+                         
                     </div>
 
                     {/* Estadísticas */}
@@ -280,6 +504,24 @@ export default function ProfilePage() {
                     </div>
                 </div>
             </div>
+
+            {/* Botón guardar para mejor UX móvil */}
+            {isEditing && (
+                <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-4 md:hidden">
+                    <button
+                        onClick={handleEditToggle}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={handleSaveProfile}
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                    >
+                        Guardar cambios
+                    </button>
+                </div>
+            )}
         </div>
     );
 }

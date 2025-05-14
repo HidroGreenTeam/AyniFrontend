@@ -10,7 +10,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   Droplet,
-  Sun
+  Sun,
+  Cloud,
+  Thermometer
 } from "lucide-react";
 import { useState } from "react";
 
@@ -25,10 +27,10 @@ export default function TreatmentsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
           <Pill className="mr-2 h-6 w-6 text-green-600" />
-          Tratamientos
+          Tratamientos para Café
         </h1>
         <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Gestiona los tratamientos recomendados para tus cultivos
+          Gestiona los tratamientos recomendados para tus plantas de café
         </p>
       </div>
 
@@ -75,10 +77,11 @@ export default function TreatmentsPage() {
                 <div className="flex items-center p-2 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 gap-1">
                   <Filter className="h-4 w-4 text-gray-400" />
                   <select className="appearance-none bg-transparent text-gray-800 dark:text-white text-sm focus:outline-none pr-6">
-                    <option>Todos los cultivos</option>
-                    <option>Tomates</option>
-                    <option>Fresas</option>
-                    <option>Lechugas</option>
+                    <option>Todas las variedades</option>
+                    <option>Arábica</option>
+                    <option>Robusta</option>
+                    <option>Bourbon</option>
+                    <option>Typica</option>
                   </select>
                   <ChevronDown className="absolute right-2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
@@ -117,13 +120,12 @@ export default function TreatmentsPage() {
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800 dark:text-white">
-                        Tratamiento para Mildiú Polvoso
+                        Tratamiento para Roya del Café
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        Aplicar en: <span className="font-medium">Fresas (Invernadero)</span>
+                        Aplicar en: <span className="font-medium">Arábica (Parcela Este)</span>
                       </p>
                       <div className="mt-2 flex items-center">
-                        {/* Aquí estaba el error: se eliminó inline-flex */}
                         <span className="text-xs text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           En progreso
@@ -148,13 +150,13 @@ export default function TreatmentsPage() {
                     <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-3 py-2 rounded-md text-sm flex items-center">
                       <Droplet className="h-4 w-4 text-blue-500 mr-2" />
                       <span className="text-gray-800 dark:text-white">
-                        Aplicar solución fungicida (12/05)
+                        Aplicar fungicida cúprico (12/05)
                       </span>
                     </div>
                     <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-3 py-2 rounded-md text-sm flex items-center">
                       <Sun className="h-4 w-4 text-yellow-500 mr-2" />
                       <span className="text-gray-800 dark:text-white">
-                        Reubicar plantas para mejorar circulación (Hoy)
+                        Mejorar circulación de aire entre plantas (Hoy)
                       </span>
                     </div>
                   </div>
@@ -170,13 +172,12 @@ export default function TreatmentsPage() {
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800 dark:text-white">
-                        Tratamiento preventivo de irrigación
+                        Fertilización orgánica preventiva
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        Aplicar en: <span className="font-medium">Lechugas (Huerto 2)</span>
+                        Aplicar en: <span className="font-medium">Bourbon (Parcela Central)</span>
                       </p>
                       <div className="mt-2 flex items-center">
-                        {/* Corregido aquí también */}
                         <span className="text-xs text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded-full flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
                           Pendiente
@@ -199,9 +200,9 @@ export default function TreatmentsPage() {
                   </h4>
                   <div className="flex flex-wrap gap-2">
                     <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 px-3 py-2 rounded-md text-sm flex items-center">
-                      <Droplet className="h-4 w-4 text-blue-500 mr-2" />
+                      <Cloud className="h-4 w-4 text-blue-500 mr-2" />
                       <span className="text-gray-800 dark:text-white">
-                        Aumentar frecuencia de riego (Hoy)
+                        Aplicar compost y abono orgánico (Hoy)
                       </span>
                     </div>
                   </div>
@@ -219,13 +220,12 @@ export default function TreatmentsPage() {
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800 dark:text-white">
-                        Tratamiento para Tizón Temprano
+                        Tratamiento para Broca del Café
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        Aplicado en: <span className="font-medium">Tomates Cherry (Huerto 1)</span>
+                        Aplicado en: <span className="font-medium">Typica (Parcela Oeste)</span>
                       </p>
                       <div className="mt-2 flex items-center">
-                        {/* Corregido aquí también */}
                         <span className="text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full flex items-center">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                           Completado
@@ -247,7 +247,7 @@ export default function TreatmentsPage() {
                     Resultados:
                   </h4>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Infección contenida con éxito. La planta muestra signos de recuperación. Se recomienda monitoreo continuo.
+                    Infestación de broca contenida efectivamente. Reducción del 90% de presencia de la plaga. Se recomienda monitoreo trimestral para prevenir reinfestación.
                   </p>
                 </div>
               </div>
@@ -261,13 +261,12 @@ export default function TreatmentsPage() {
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800 dark:text-white">
-                        Tratamiento de fertilización
+                        Manejo de sombra y regulación térmica
                       </h3>
                       <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                        Aplicado en: <span className="font-medium">Zanahorias (Huerto 1)</span>
+                        Aplicado en: <span className="font-medium">Arábica y Robusta (Parcelas generales)</span>
                       </p>
                       <div className="mt-2 flex items-center">
-                        {/* Corregido aquí también */}
                         <span className="text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-full flex items-center">
                           <CheckCircle2 className="h-3 w-3 mr-1" />
                           Completado
@@ -289,7 +288,7 @@ export default function TreatmentsPage() {
                     Resultados:
                   </h4>
                   <p className="text-sm text-gray-600 dark:text-gray-300">
-                    Mejora notoria en crecimiento y color de las plantas. Programar próxima fertilización en 30 días.
+                    Mejora notoria en el desarrollo de los cafetos y floración más consistente. Temperatura promedio del follaje reducida en 3°C. Programar próxima poda de árboles de sombra en 6 meses.
                   </p>
                 </div>
               </div>

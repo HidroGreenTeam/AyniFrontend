@@ -1,15 +1,15 @@
 "use client";
 
-import { 
-  Settings, 
-  Moon, 
-  Sun, 
-  Globe, 
-  Bell, 
-  Lock, 
-  ExternalLink, 
+import {
+  Bell,
+  Check,
+  ExternalLink,
+  Globe,
+  Lock,
   LogOut,
-  Check
+  Moon,
+  Settings,
+  Sun
 } from "lucide-react";
 import { useState } from "react";
 

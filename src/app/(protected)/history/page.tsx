@@ -1,31 +1,30 @@
 "use client";
 
-import { 
-  ClipboardList, 
-  Search, 
-  Calendar, 
-  Filter, 
-  ChevronDown, 
-  AlertTriangle, 
+import {
+  AlertTriangle,
+  Calendar,
   CheckCircle2,
-  Pill 
+  ChevronDown,
+  ClipboardList,
+  Filter,
+  Pill,
+  Search
 } from "lucide-react";
 import { useState } from "react";
 
 export default function HistoryPage() {
   const [isLoading] = useState(false);
  
-
   return (
     <div className="space-y-6">
       {/* Encabezado de página */}
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
           <ClipboardList className="mr-2 h-6 w-6 text-green-600" />
-          Historial de Diagnósticos
+          Historial de Diagnósticos de Café
         </h1>
         <p className="text-gray-600 dark:text-gray-300 mt-1">
-          Consulta el historial completo de diagnósticos realizados en tus cultivos
+          Consulta el historial completo de diagnósticos realizados en tus cultivos de café
         </p>
       </div>
 
@@ -59,10 +58,11 @@ export default function HistoryPage() {
               <div className="flex items-center p-2 border border-gray-200 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 gap-1">
                 <Filter className="h-4 w-4 text-gray-400" />
                 <select className="appearance-none bg-transparent text-gray-800 dark:text-white text-sm focus:outline-none pr-6">
-                  <option>Todos los cultivos</option>
-                  <option>Tomates</option>
-                  <option>Fresas</option>
-                  <option>Lechugas</option>
+                  <option>Todas las variedades</option>
+                  <option>Café Arábica</option>
+                  <option>Café Robusta</option>
+                  <option>Café Bourbon</option>
+                  <option>Café Typica</option>
                 </select>
                 <ChevronDown className="absolute right-2 h-4 w-4 text-gray-400 pointer-events-none" />
               </div>
@@ -83,7 +83,7 @@ export default function HistoryPage() {
             {/* Encabezado de la tabla */}
             <div className="hidden md:flex items-center p-4 text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800">
               <div className="w-1/6">Fecha</div>
-              <div className="w-1/5">Cultivo</div>
+              <div className="w-1/5">Variedad</div>
               <div className="w-1/4">Diagnóstico</div>
               <div className="w-1/6">Estado</div>
               <div className="w-1/5">Acciones</div>
@@ -93,18 +93,18 @@ export default function HistoryPage() {
             <div className="p-4">
               <div className="md:hidden mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
                 <div className="text-xs text-gray-500 dark:text-gray-400">12/05/2025</div>
-                <div className="font-medium text-gray-800 dark:text-white mt-1">Lechugas (Huerto 2)</div>
+                <div className="font-medium text-gray-800 dark:text-white mt-1">Café Arábica (Parcela 2)</div>
               </div>
               
               <div className="flex flex-col md:flex-row md:items-center">
                 <div className="hidden md:block w-1/6 text-sm text-gray-600 dark:text-gray-300">12/05/2025</div>
-                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Lechugas (Huerto 2)</div>
+                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Café Arábica (Parcela 2)</div>
                 
                 <div className="md:w-1/4 flex items-center">
                   <div className="h-8 w-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mr-3 md:mr-2">
                     <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                   </div>
-                  <span className="text-sm text-gray-800 dark:text-white">Estrés hídrico</span>
+                  <span className="text-sm text-gray-800 dark:text-white">Roya del café</span>
                 </div>
                 
                 <div className="md:w-1/6 mt-2 md:mt-0 flex items-center">
@@ -129,18 +129,18 @@ export default function HistoryPage() {
             <div className="p-4">
               <div className="md:hidden mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
                 <div className="text-xs text-gray-500 dark:text-gray-400">11/05/2025</div>
-                <div className="font-medium text-gray-800 dark:text-white mt-1">Fresas (Invernadero)</div>
+                <div className="font-medium text-gray-800 dark:text-white mt-1">Café Robusta (Invernadero)</div>
               </div>
               
               <div className="flex flex-col md:flex-row md:items-center">
                 <div className="hidden md:block w-1/6 text-sm text-gray-600 dark:text-gray-300">11/05/2025</div>
-                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Fresas (Invernadero)</div>
+                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Café Robusta (Invernadero)</div>
                 
                 <div className="md:w-1/4 flex items-center">
                   <div className="h-8 w-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mr-3 md:mr-2">
                     <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
                   </div>
-                  <span className="text-sm text-gray-800 dark:text-white">Mildiú polvoso</span>
+                  <span className="text-sm text-gray-800 dark:text-white">Broca del café</span>
                 </div>
                 
                 <div className="md:w-1/6 mt-2 md:mt-0 flex items-center">
@@ -165,12 +165,12 @@ export default function HistoryPage() {
             <div className="p-4">
               <div className="md:hidden mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
                 <div className="text-xs text-gray-500 dark:text-gray-400">10/05/2025</div>
-                <div className="font-medium text-gray-800 dark:text-white mt-1">Tomates Cherry (Huerto 1)</div>
+                <div className="font-medium text-gray-800 dark:text-white mt-1">Café Bourbon (Parcela 1)</div>
               </div>
               
               <div className="flex flex-col md:flex-row md:items-center">
                 <div className="hidden md:block w-1/6 text-sm text-gray-600 dark:text-gray-300">10/05/2025</div>
-                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Tomates Cherry (Huerto 1)</div>
+                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Café Bourbon (Parcela 1)</div>
                 
                 <div className="md:w-1/4 flex items-center">
                   <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3 md:mr-2">
@@ -201,23 +201,23 @@ export default function HistoryPage() {
             <div className="p-4">
               <div className="md:hidden mb-2 pb-2 border-b border-gray-100 dark:border-gray-700">
                 <div className="text-xs text-gray-500 dark:text-gray-400">08/05/2025</div>
-                <div className="font-medium text-gray-800 dark:text-white mt-1">Papas (Huerto 3)</div>
+                <div className="font-medium text-gray-800 dark:text-white mt-1">Café Typica (Parcela 3)</div>
               </div>
               
               <div className="flex flex-col md:flex-row md:items-center">
                 <div className="hidden md:block w-1/6 text-sm text-gray-600 dark:text-gray-300">08/05/2025</div>
-                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Papas (Huerto 3)</div>
+                <div className="hidden md:block w-1/5 text-sm text-gray-800 dark:text-white">Café Typica (Parcela 3)</div>
                 
                 <div className="md:w-1/4 flex items-center">
-                  <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3 md:mr-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  <div className="h-8 w-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mr-3 md:mr-2">
+                    <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                   </div>
-                  <span className="text-sm text-gray-800 dark:text-white">Sin patologías</span>
+                  <span className="text-sm text-gray-800 dark:text-white">Mancha de hierro</span>
                 </div>
                 
                 <div className="md:w-1/6 mt-2 md:mt-0 flex items-center">
-                  <span className="text-xs bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
-                    Saludable
+                  <span className="text-xs bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 px-2 py-1 rounded-full">
+                    En tratamiento
                   </span>
                 </div>
                 

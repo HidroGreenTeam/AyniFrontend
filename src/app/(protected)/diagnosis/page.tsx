@@ -2,13 +2,13 @@
 
 import {
     AlertTriangle,
+    CheckCircle2,
     Info,
     RefreshCw,
-    Upload,
-    CheckCircle2
+    Upload
 } from "lucide-react";
-import React, { useState } from "react";
 import Image from 'next/image';
+import React, { useState } from "react";
 
 export default function DiagnosisPage() {
     const [activeStep, setActiveStep] = useState<
@@ -25,7 +25,7 @@ export default function DiagnosisPage() {
             setActiveStep("analyzing");
             setTimeout(() => {
                 setActiveStep("results");
-            }, 2000);
+            }, 6000);
         }
     };
 
@@ -40,11 +40,11 @@ export default function DiagnosisPage() {
             <div>
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
                     <AlertTriangle className="mr-2 h-6 w-6 text-green-600" />
-                    Diagnóstico de Cultivos
+                    Diagnóstico de Plantas de Café
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-1">
-                    Detecta enfermedades y problemas en tus plantas con nuestra
-                    herramienta de diagnóstico
+                    Detecta enfermedades y problemas en tus plantas de café con nuestra
+                    herramienta especializada de diagnóstico
                 </p>
             </div>
 
@@ -56,11 +56,11 @@ export default function DiagnosisPage() {
                             <AlertTriangle className="h-8 w-8 text-green-600 dark:text-green-400" />
                         </div>
                         <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-2">
-                            Sube una imagen
+                            Sube una imagen de tu planta de café
                         </h2>
                         <p className="text-gray-600 dark:text-gray-300 text-center max-w-md mb-6">
-                            Toma una foto clara de la hoja o planta afectada y súbela aquí. Nuestro sistema
-                            de IA analizará la imagen para detectar posibles enfermedades.
+                            Toma una foto clara de la hoja o parte de la planta de café afectada. Nuestro sistema
+                            de IA especializado en cafetales analizará la imagen para detectar enfermedades comunes.
                         </p>
 
                         <div className="space-y-4 w-full max-w-md">
@@ -89,8 +89,8 @@ export default function DiagnosisPage() {
                         <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 flex items-start max-w-md">
                             <Info className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
                             <p className="text-sm text-blue-800 dark:text-blue-200">
-                                <strong>Tip:</strong> Para mejores resultados, asegúrate de que
-                                la imagen esté bien iluminada y enfocada en la zona afectada.
+                                <strong>Tip:</strong> Para mejores resultados, enfoca la imagen en las hojas o frutos afectados.
+                                Nuestro sistema puede detectar roya, ojo de gallo, broca y otras enfermedades comunes del café.
                             </p>
                         </div>
                     </div>
@@ -104,23 +104,21 @@ export default function DiagnosisPage() {
                                 alt="Imagen analizada"
                                 fill
                                 className="object-cover"
-                                sizes="(max-width: 768px) 100vw, 50vw"
-                                width={500}
-                                height={500}
+                                sizes="(max-width: 768px) 100vw, 50vw" 
                             />
                             <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                                 <div className="text-center">
                                     <RefreshCw className="h-10 w-10 text-white mx-auto animate-spin" />
                                     <p className="text-white font-medium mt-3">
-                                        Analizando imagen...
+                                        Analizando planta de café...
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         <p className="text-gray-600 dark:text-gray-300 text-center max-w-md">
-                            Nuestro sistema de IA está examinando la imagen para detectar
-                            posibles patógenos y enfermedades. Esto puede tomar unos segundos.
+                            Nuestro sistema especializado está examinando la imagen para detectar
+                            enfermedades comunes en cafetales. Esto puede tomar unos segundos.
                         </p>
                     </div>
                 )}
@@ -129,7 +127,6 @@ export default function DiagnosisPage() {
                     <div className="flex flex-col lg:flex-row gap-6">
                         <div className="lg:w-1/2">
                             <div className="rounded-lg overflow-hidden mb-4">
-
                                 <Image
                                     src={imagePreview}
                                     alt="Imagen analizada"
@@ -148,15 +145,14 @@ export default function DiagnosisPage() {
                         </div>
 
                         <div className="lg:w-1/2">
-                            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800/40 rounded-lg p-4 mb-4">
-                                <h3 className="font-semibold text-yellow-800 dark:text-yellow-300 flex items-center mb-1">
-                                    <AlertTriangle className="h-5 w-5 mr-2 text-yellow-600 dark:text-yellow-400" />
-                                    Mildiú polvoso (90% de confianza)
+                            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg p-4 mb-4">
+                                <h3 className="font-semibold text-red-800 dark:text-red-300 flex items-center mb-1">
+                                    <AlertTriangle className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
+                                    Roya del café (93% de confianza)
                                 </h3>
-                                <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                                    Se ha detectado una posible infección por mildiú polvoso en
-                                    las hojas. Esta enfermedad fúngica puede propagarse
-                                    rápidamente si no se trata.
+                                <p className="text-sm text-red-800 dark:text-red-200">
+                                    Se ha detectado la enfermedad Roya del café (Hemileia vastatrix), un patógeno 
+                                    fúngico que puede causar defoliación severa y pérdidas significativas en la producción.
                                 </p>
                             </div>
 
@@ -168,15 +164,15 @@ export default function DiagnosisPage() {
                                     <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                                         <li className="flex items-start">
                                             <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
-                                            Manchas blancas/grisáceas en las hojas
+                                            Manchas amarillentas en el haz de las hojas
                                         </li>
                                         <li className="flex items-start">
                                             <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
-                                            Polvo blanco en la superficie foliar
+                                            Polvillo anaranjado en el envés (esporas del hongo)
                                         </li>
                                         <li className="flex items-start">
                                             <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
-                                            Hojas con bordes amarillentos
+                                            Defoliación prematura en ramas afectadas
                                         </li>
                                     </ul>
                                 </div>
@@ -190,26 +186,32 @@ export default function DiagnosisPage() {
                                             <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
                                                 <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
                                             </div>
-                                            Aplicar fungicida orgánico a base de azufre
+                                            Aplicar fungicida cúprico o sistémico específico para roya
                                         </li>
                                         <li className="flex items-start">
                                             <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
                                                 <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
                                             </div>
-                                            Mejorar la circulación de aire entre las plantas
+                                            Regular la sombra para mejorar ventilación
                                         </li>
                                         <li className="flex items-start">
                                             <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
                                                 <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
                                             </div>
-                                            Evitar regar por encima de las hojas
+                                            Implementar variedades resistentes en futuras plantaciones
+                                        </li>
+                                        <li className="flex items-start">
+                                            <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
+                                                <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
+                                            </div>
+                                            Mantener adecuada fertilización con balance de nitrógeno
                                         </li>
                                     </ul>
                                 </div>
 
                                 <div className="flex space-x-3">
                                     <button className="flex-1 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 transition-colors">
-                                        Ver tratamientos
+                                        Ver tratamientos específicos
                                     </button>
                                     <button className="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                                         Guardar diagnóstico
