@@ -2,13 +2,10 @@
 
 import {
     AlertTriangle,
-    Briefcase,
-    Calendar,
     Camera,
     Check,
     Edit,
     Mail,
-    MapPin,
     Phone,
     Save,
     User,
@@ -25,7 +22,7 @@ export default function ProfilePage() {
     const [errorMessage, setErrorMessage] = useState("");
     
     // Usar el hook de perfil del agricultor
-    const { farmer, loading, error, fetchFarmer, updateProfile, updateImage, removeImage } = useFarmerProfile();
+    const { farmer, loading, error, fetchFarmer, updateProfile, updateImage } = useFarmerProfile();
 
     // Estado actual del perfil (para edición)
     const [perfil, setPerfil] = useState<UpdateFarmerDTO>({
@@ -136,8 +133,7 @@ export default function ProfilePage() {
             await updateProfile(perfil);
             setIsEditing(false);
             setSuccessMessage("¡Perfil actualizado correctamente!");
-            setTimeout(() => setSuccessMessage(""), 5000);
-        } catch (err) {
+            setTimeout(() => setSuccessMessage(""), 5000);        } catch {
             setErrorMessage("Error al actualizar el perfil. Por favor, intenta de nuevo.");
             setTimeout(() => setErrorMessage(""), 5000);
         }
@@ -149,8 +145,7 @@ export default function ProfilePage() {
             try {
                 await updateImage(file);
                 setSuccessMessage("¡Imagen de perfil actualizada!");
-                setTimeout(() => setSuccessMessage(""), 5000);
-            } catch (err) {
+                setTimeout(() => setSuccessMessage(""), 5000);            } catch {
                 setErrorMessage("Error al actualizar la imagen. Por favor, intenta de nuevo.");
                 setTimeout(() => setErrorMessage(""), 5000);
             }

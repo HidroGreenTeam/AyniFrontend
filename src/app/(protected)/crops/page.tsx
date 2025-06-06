@@ -1,10 +1,105 @@
 "use client";
 
-import { ChevronDown, Filter, Plus, Sprout } from "lucide-react";
-import { useState } from "react";
+import { Plus, Sprout } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useCrops } from "@/features/crops/hooks/useCrops";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import CropForm from "@/features/crops/components/CropForm";
+import CropDetail from "@/features/crops/components/CropDetail";
+import CropsList from "@/features/crops/components/CropsList";
+import CropsFilters from "@/features/crops/components/CropsFilters";
+import { Crop, CreateCropDTO, UpdateCropDTO } from "@/features/crops/types/crop";
 
 export default function CropsPage() {
-  const [isLoading] = useState(false);
+  const { user } = useAuth();  const { 
+    crops, 
+    loading, 
+    error, 
+    fetchCropsByFarmerId, 
+    createCrop, 
+    updateCropData, 
+    removeCrop, 
+    updateImage, 
+    updateIrrigationType 
+  } = useCrops();
+  
+  const [showForm, setShowForm] = useState(false);
+  const [showDetail, setShowDetail] = useState(false);
+  const [selectedCrop, setSelectedCrop] = useState<Crop | null>(null);
+  const [editingCrop, setEditingCrop] = useState<Crop | null>(null);
+  const [filterType, setFilterType] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  // Load crops for the current farmer
+  useEffect(() => {
+    if (user?.id) {
+      fetchCropsByFarmerId(user.id);
+    }
+  }, [user?.id, fetchCropsByFarmerId]);
+
+  // Filter crops based on selected filters
+  const filteredCrops = crops.filter(crop => {
+    const typeMatch = filterType === 'all' || crop.cropName.toLowerCase().includes(filterType.toLowerCase());
+    // For now, we'll consider all crops as 'healthy' for the status filter
+    const statusMatch = filterStatus === 'all' || filterStatus === 'healthy';
+    return typeMatch && statusMatch;
+  });
+
+  const handleCreateCrop = async (data: CreateCropDTO, file?: File) => {
+    if (!file) {
+      throw new Error('Image is required');
+    }
+    await createCrop(data, file);
+    setShowForm(false);
+  };
+
+  const handleUpdateCrop = async (data: UpdateCropDTO, file?: File) => {
+    if (!editingCrop) return;
+    
+    await updateCropData(editingCrop.id, data);
+    if (file) {
+      await updateImage(editingCrop.id, file);
+    }
+    setEditingCrop(null);
+    setShowForm(false);
+  };
+
+  const handleDeleteCrop = async (cropId: number) => {
+    if (confirm('¿Estás seguro de que quieres eliminar este cultivo?')) {
+      await removeCrop(cropId);
+    }
+  };
+
+  const handleViewCrop = (crop: Crop) => {
+    setSelectedCrop(crop);
+    setShowDetail(true);
+  };
+
+  const handleEditCrop = (crop: Crop) => {
+    setEditingCrop(crop);
+    setShowForm(true);
+  };
+
+  const handleUpdateImage = async (cropId: number, file: File) => {
+    await updateImage(cropId, file);
+  };
+
+  const handleUpdateIrrigationType = async (cropId: number, data: { irrigationType: 'Manual' | 'Automatic' }) => {
+    await updateIrrigationType(cropId, data);
+  };
+
+  // Get unique crop types for filter
+  const cropTypes = Array.from(new Set(crops.map(crop => crop.cropName)));
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <p className="text-red-600 dark:text-red-400">Error: {error}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -20,70 +115,64 @@ export default function CropsPage() {
           </p>
         </div>
 
-        <button className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm">
+        <button 
+          onClick={() => {
+            setEditingCrop(null);
+            setShowForm(true);
+          }}
+          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm"
+        >
           <Plus className="h-5 w-5 mr-2" />
           Nuevo cultivo
         </button>
-      </div>
-
-      {/* Filtros */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm flex flex-wrap gap-3 items-center border border-gray-100 dark:border-gray-700">
-        <div className="flex items-center text-gray-500 dark:text-gray-400">
-          <Filter className="h-4 w-4 mr-2" />
-          Filtrar por:
-        </div>
-
-        <div className="relative">
-          <select className="appearance-none bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md pl-3 pr-8 py-2 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
-            <option>Todos los cultivos</option>
-            <option>Café</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
-        </div>
-
-        <div className="relative">
-          <select className="appearance-none bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md pl-3 pr-8 py-2 text-sm text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-green-500">
-            <option>Todos los estados</option>
-            <option>Saludable</option>
-            <option>En riesgo</option>
-            <option>Enfermo</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400 pointer-events-none" />
-        </div>
-      </div>
+      </div>      {/* Filtros */}
+      <CropsFilters
+        filterType={filterType}
+        filterStatus={filterStatus}
+        cropTypes={cropTypes}
+        onFilterTypeChange={setFilterType}
+        onFilterStatusChange={setFilterStatus}
+      />
 
       {/* Listado de cultivos */}
-      {isLoading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 flex items-center justify-center border border-gray-100 dark:border-gray-700">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-          <span className="ml-3 text-gray-600 dark:text-gray-300">Cargando cultivos...</span>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {/* Único cultivo de café */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow">
-            <div className="h-32 bg-gradient-to-r from-green-500 to-green-600 relative">
-              <div className="absolute top-3 right-3 bg-white/90 dark:bg-black/70 px-2 py-1 rounded text-xs font-medium text-green-700 dark:text-green-400">
-                Saludable
-              </div>
-            </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-gray-800 dark:text-white">Café Arábica</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                Último diagnóstico: hace 2 días
-              </p>
-              <div className="mt-3 flex justify-between items-center">
-                <span className="text-xs bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full">
-                  Parcela Principal
-                </span>
-                <button className="text-sm text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                  Ver detalles
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <CropsList
+        crops={filteredCrops}
+        loading={loading}
+        onEdit={handleEditCrop}
+        onDelete={handleDeleteCrop}
+        onView={handleViewCrop}
+        onUpdateImage={handleUpdateImage}
+        onCreateNew={() => {
+          setEditingCrop(null);
+          setShowForm(true);
+        }}
+      />
+
+      {/* Formulario de cultivo */}
+      <CropForm
+        crop={editingCrop}
+        isOpen={showForm}
+        onClose={() => {
+          setShowForm(false);
+          setEditingCrop(null);
+        }}
+        onSubmit={editingCrop ? handleUpdateCrop : handleCreateCrop}
+        title={editingCrop ? 'Editar Cultivo' : 'Nuevo Cultivo'}
+      />
+
+      {/* Detalle del cultivo */}
+      <CropDetail
+        crop={selectedCrop}
+        isOpen={showDetail}
+        onClose={() => {
+          setShowDetail(false);
+          setSelectedCrop(null);
+        }}
+        onEdit={handleEditCrop}
+        onDelete={handleDeleteCrop}
+        onUpdateImage={handleUpdateImage}
+        onUpdateIrrigationType={handleUpdateIrrigationType}
+      />
     </div>
   );
 }
