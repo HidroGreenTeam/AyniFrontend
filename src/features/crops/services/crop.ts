@@ -1,6 +1,6 @@
 import { Crop, CreateCropDTO, UpdateCropDTO, UpdateIrrigationTypeDTO } from '../types/crop';
 
-const API_URL = 'http://localhost:8080/api/v1/crops';
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/crops`;
 
 // Función helper para obtener los headers con el token
 const getAuthHeaders = () => {
@@ -113,10 +113,8 @@ export async function createCropWithImage(cropData: CreateCropDTO, file: File): 
     const cropBlob = new Blob([JSON.stringify(cropData)], {
         type: 'application/json'
     });
-    formData.append('crop', cropBlob);
-
-    console.log('FormData entries:');
-    for (let [key, value] of formData.entries()) {
+    formData.append('crop', cropBlob);    console.log('FormData entries:');
+    for (const [key, value] of formData.entries()) {
         console.log(key, value);
     }
 

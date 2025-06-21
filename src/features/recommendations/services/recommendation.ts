@@ -1,6 +1,6 @@
 import { RecommendationRequest, RecommendationResponse } from '../types/recommendation';
 
-const API_URL = 'http://localhost:3000/api/recommendations';
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/recommendations`;
 
 export async function generateRecommendations(disease: string): Promise<RecommendationResponse> {
     const response = await fetch(API_URL, {
