@@ -2,13 +2,10 @@
 
 import {
     AlertTriangle,
-    Briefcase,
-    Calendar,
     Camera,
     Check,
     Edit,
     Mail,
-    MapPin,
     Phone,
     Save,
     User,
@@ -16,44 +13,27 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useFarmerProfile } from "@/features/farmers/hooks/useFarmerProfile";
+import { UpdateFarmerDTO } from "@/features/farmers/types/farmer";
 
 export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     
-    // Estado original del perfil
-    const [perfilOriginal, setPerfilOriginal] = useState({
-        nombre: "",
-        email: "",
-        telefono: "",
-        ubicacion: "",
-        ocupacion: "",
-        fechaRegistro: "",
-        bio: "",
-        avatar: "/placeholder.svg"
-    });
-    
+    // Usar el hook de perfil del agricultor
+    const { farmer, loading, error, fetchFarmer, updateProfile, updateImage } = useFarmerProfile();
+
     // Estado actual del perfil (para edición)
-    const [perfil, setPerfil] = useState({
-        nombre: "",
-        email: "",
-        telefono: "",
-        ubicacion: "",
-        ocupacion: "",
-        fechaRegistro: "",
-        bio: "",
-        avatar: "/placeholder.svg"
+    const [perfil, setPerfil] = useState<UpdateFarmerDTO>({
+        username: "",
+        phoneNumber: ""
     });
 
     // Datos del formulario con validación
     const [formErrors, setFormErrors] = useState({
-        nombre: "",
-        email: "",
-        telefono: "",
-        ubicacion: "",
-        ocupacion: "",
-        bio: ""
+        username: "",
+        phoneNumber: ""
     });
 
     // Estado para notificaciones
@@ -63,54 +43,37 @@ export default function ProfilePage() {
         consejosRecomendaciones: false
     });
 
-    // Simular carga de datos del usuario
+    // Cargar datos del perfil solo una vez al montar el componente
     useEffect(() => {
-        // En un caso real, aquí cargarías los datos del usuario desde la API
-        const userData = {
-            nombre: "Carlos Mendoza",
-            email: "carlos.mendoza@ejemplo.com",
-            telefono: "+51 987 654 321",
-            ubicacion: "Lima, Perú",
-            ocupacion: "Agricultor",
-            fechaRegistro: "Enero 2025",
-            bio: "Agricultor experimentado con más de 15 años cultivando diversas hortalizas y frutas en la región de Lima. Especializado en agricultura sostenible y control de plagas mediante métodos naturales.",
-            avatar: "/placeholder.svg"
-        };
-        
-        setPerfil(userData);
-        setPerfilOriginal(userData);
-    }, []);
+        fetchFarmer();
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Actualizar estado local cuando cambian los datos del agricultor
+    useEffect(() => {
+        if (farmer) {
+            setPerfil({
+                username: farmer.username,
+                phoneNumber: farmer.phoneNumber || ""
+            });
+        }
+    }, [farmer]);
 
     const validateForm = () => {
         let isValid = true;
         const errors = {
-            nombre: "",
-            email: "",
-            telefono: "",
-            ubicacion: "",
-            ocupacion: "",
-            bio: ""
+            username: "",
+            phoneNumber: ""
         };
         
-        // Validación del nombre
-        if (!perfil.nombre.trim()) {
-            errors.nombre = "El nombre es obligatorio";
+        // Validación del nombre de usuario
+        if (!perfil.username.trim()) {
+            errors.username = "El nombre de usuario es obligatorio";
             isValid = false;
         }
         
-        // Validación del email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!perfil.email.trim()) {
-            errors.email = "El email es obligatorio";
-            isValid = false;
-        } else if (!emailRegex.test(perfil.email)) {
-            errors.email = "Formato de email inválido";
-            isValid = false;
-        }
-        
-        // Validación del teléfono (opcional)
-        if (perfil.telefono.trim() && !/^[+]?[\d\s()-]{7,}$/.test(perfil.telefono)) {
-            errors.telefono = "Formato de teléfono inválido";
+        // Validación del teléfono
+        if (perfil.phoneNumber.trim() && !/^[+]?[\d\s()-]{7,}$/.test(perfil.phoneNumber)) {
+            errors.phoneNumber = "Formato de teléfono inválido";
             isValid = false;
         }
         
@@ -118,7 +81,7 @@ export default function ProfilePage() {
         return isValid;
     };
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setPerfil(prev => ({
             ...prev,
@@ -144,51 +107,62 @@ export default function ProfilePage() {
     
     const handleEditToggle = () => {
         if (isEditing) {
-            // Si estamos cancelando la edición, restauramos el estado original
-            setPerfil(perfilOriginal);
+            // Si estamos cancelando la edición, restauramos los datos del agricultor
+            if (farmer) {
+                setPerfil({
+                    username: farmer.username,
+                    phoneNumber: farmer.phoneNumber || ""
+                });
+            }
             setFormErrors({
-                nombre: "",
-                email: "",
-                telefono: "",
-                ubicacion: "",
-                ocupacion: "",
-                bio: ""
+                username: "",
+                phoneNumber: ""
             });
         }
         setIsEditing(!isEditing);
     };
     
-    const handleSaveProfile = () => {
+    const handleSaveProfile = async () => {
         if (!validateForm()) {
             setErrorMessage("Por favor, corrige los errores antes de guardar.");
             setTimeout(() => setErrorMessage(""), 5000);
             return;
         }
         
-        // Aquí enviarías los datos a tu API
-        console.log("Guardando perfil:", perfil);
-        
-        // Actualizar el perfil original con los nuevos datos
-        setPerfilOriginal({...perfil});
-        setIsEditing(false);
-        
-        // Mostrar mensaje de éxito
-        setSuccessMessage("¡Perfil actualizado correctamente!");
-        setTimeout(() => setSuccessMessage(""), 5000);
-    };
-    
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            // En un caso real, aquí subirías la imagen a tu servidor
-            // Por ahora solo simulamos el cambio con URL.createObjectURL
-            const imageUrl = URL.createObjectURL(file);
-            setPerfil(prev => ({
-                ...prev,
-                avatar: imageUrl
-            }));
+        try {
+            await updateProfile(perfil);
+            setIsEditing(false);
+            setSuccessMessage("¡Perfil actualizado correctamente!");
+            setTimeout(() => setSuccessMessage(""), 5000);        } catch {
+            setErrorMessage("Error al actualizar el perfil. Por favor, intenta de nuevo.");
+            setTimeout(() => setErrorMessage(""), 5000);
         }
     };
+    
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            try {
+                await updateImage(file);
+                setSuccessMessage("¡Imagen de perfil actualizada!");
+                setTimeout(() => setSuccessMessage(""), 5000);            } catch {
+                setErrorMessage("Error al actualizar la imagen. Por favor, intenta de nuevo.");
+                setTimeout(() => setErrorMessage(""), 5000);
+            }
+        }
+    };
+
+    if (loading) {
+        return <div className="flex items-center justify-center min-h-screen">Cargando...</div>;
+    }
+
+    if (error) {
+        return <div className="text-red-500">Error: {error}</div>;
+    }
+
+    if (!farmer) {
+        return <div>No se encontró el perfil</div>;
+    }
 
     return (
         <div className="space-y-6">
@@ -196,7 +170,7 @@ export default function ProfilePage() {
             <div>
                 <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center">
                     <User className="mr-2 h-6 w-6 text-green-600" />
-                    Mi Perfil
+                    {farmer ? `Perfil de ${farmer.username}` : 'Mi Perfil'}
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300 mt-1">
                     Gestiona tu información personal y preferencias
@@ -267,13 +241,19 @@ export default function ProfilePage() {
                     <div className="flex flex-col sm:flex-row sm:items-end -mt-16 mb-4 sm:space-x-5">
                         <div className="relative">
                             <div className="h-32 w-32 rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-700">
-                                <Image
-                                    src={perfil.avatar}
-                                    alt="Foto de perfil"
-                                    className="h-full w-full object-cover"
-                                    width={128}
-                                    height={128}
-                                />
+                                {farmer?.imageUrl ? (
+                                    <Image
+                                        src={farmer.imageUrl}
+                                        alt={`Foto de perfil de ${farmer.username}`}
+                                        className="h-full w-full object-cover"
+                                        width={128}
+                                        height={128}
+                                    />
+                                ) : (
+                                    <div className="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
+                                        <User className="h-16 w-16 text-gray-400" />
+                                    </div>
+                                )}
                             </div>
                             {isEditing && (
                                 <label className="absolute bottom-0 right-0 bg-green-600 text-white p-2 rounded-full cursor-pointer shadow-sm hover:bg-green-700 transition-colors">
@@ -293,24 +273,24 @@ export default function ProfilePage() {
                                 <div>
                                     <input
                                         type="text"
-                                        name="nombre"
-                                        value={perfil.nombre}
+                                        name="username"
+                                        value={perfil.username}
                                         onChange={handleInputChange}
                                         className={`text-2xl font-bold text-gray-800 dark:text-white bg-transparent border-b ${
-                                            formErrors.nombre ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                            formErrors.username ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                                         } focus:outline-none focus:border-green-500 w-full`}
-                                        placeholder="Tu nombre completo"
+                                        placeholder="Tu nombre de usuario"
                                     />
-                                    {formErrors.nombre && (
-                                        <p className="text-red-500 text-xs mt-1">{formErrors.nombre}</p>
+                                    {formErrors.username && (
+                                        <p className="text-red-500 text-xs mt-1">{formErrors.username}</p>
                                     )}
                                 </div>
                             ) : (
-                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{perfil.nombre}</h2>
+                                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{farmer?.username}</h2>
                             )}
                             <div className="flex items-center mt-1 text-sm text-gray-600 dark:text-gray-300">
-                                <Calendar className="h-4 w-4 mr-1" />
-                                <span>Miembro desde {perfil.fechaRegistro}</span>
+                                <Mail className="h-4 w-4 mr-1" />
+                                <span>{farmer?.email}</span>
                             </div>
                         </div>
                     </div>
@@ -323,108 +303,30 @@ export default function ProfilePage() {
                             <div className="space-y-3">
                                 <div className="flex flex-col">
                                     <div className="flex items-center text-gray-600 dark:text-gray-300">
-                                        <Mail className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
-                                        {isEditing ? (
-                                            <div className="flex-1">
-                                                <input
-                                                    type="email"
-                                                    name="email"
-                                                    value={perfil.email}
-                                                    onChange={handleInputChange}
-                                                    className={`bg-transparent border-b ${
-                                                        formErrors.email ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                                                    } focus:outline-none focus:border-green-500 w-full`}
-                                                    placeholder="tu.email@ejemplo.com"
-                                                />
-                                                {formErrors.email && (
-                                                    <p className="text-red-500 text-xs mt-1">{formErrors.email}</p>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <span>{perfil.email}</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col">
-                                    <div className="flex items-center text-gray-600 dark:text-gray-300">
                                         <Phone className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
                                         {isEditing ? (
                                             <div className="flex-1">
                                                 <input
                                                     type="tel"
-                                                    name="telefono"
-                                                    value={perfil.telefono}
+                                                    name="phoneNumber"
+                                                    value={perfil.phoneNumber}
                                                     onChange={handleInputChange}
                                                     className={`bg-transparent border-b ${
-                                                        formErrors.telefono ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                                                        formErrors.phoneNumber ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                                                     } focus:outline-none focus:border-green-500 w-full`}
                                                     placeholder="+00 000 000 000"
                                                 />
-                                                {formErrors.telefono && (
-                                                    <p className="text-red-500 text-xs mt-1">{formErrors.telefono}</p>
+                                                {formErrors.phoneNumber && (
+                                                    <p className="text-red-500 text-xs mt-1">{formErrors.phoneNumber}</p>
                                                 )}
                                             </div>
                                         ) : (
-                                            <span>{perfil.telefono}</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col">
-                                    <div className="flex items-center text-gray-600 dark:text-gray-300">
-                                        <MapPin className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
-                                        {isEditing ? (
-                                            <div className="flex-1">
-                                                <input
-                                                    type="text"
-                                                    name="ubicacion"
-                                                    value={perfil.ubicacion}
-                                                    onChange={handleInputChange}
-                                                    className={`bg-transparent border-b ${
-                                                        formErrors.ubicacion ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                                                    } focus:outline-none focus:border-green-500 w-full`}
-                                                    placeholder="Ciudad, País"
-                                                />
-                                                {formErrors.ubicacion && (
-                                                    <p className="text-red-500 text-xs mt-1">{formErrors.ubicacion}</p>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <span>{perfil.ubicacion}</span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col">
-                                    <div className="flex items-center text-gray-600 dark:text-gray-300">
-                                        <Briefcase className="h-5 w-5 mr-3 text-gray-400 dark:text-gray-500" />
-                                        {isEditing ? (
-                                            <div className="flex-1">
-                                                <input
-                                                    type="text"
-                                                    name="ocupacion"
-                                                    value={perfil.ocupacion}
-                                                    onChange={handleInputChange}
-                                                    className={`bg-transparent border-b ${
-                                                        formErrors.ocupacion ? 'border-red-500' : 'border-gray-300 dark:border-gray-600' 
-                                                    } focus:outline-none focus:border-green-500 w-full`}
-                                                    placeholder="Tu ocupación"
-                                                />
-                                                {formErrors.ocupacion && (
-                                                    <p className="text-red-500 text-xs mt-1">{formErrors.ocupacion}</p>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <span>{perfil.ocupacion}</span>
+                                            <span>{farmer?.phoneNumber}</span>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        
-                         
                     </div>
 
                     {/* Estadísticas */}

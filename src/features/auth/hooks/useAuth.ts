@@ -1,10 +1,15 @@
-import { User } from "@/models/User";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { authService } from "../services/authService";
 
+interface AuthUser {
+    id: number;
+    email: string;
+    token: string;
+}
+
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [formErrors, setFormErrors] = useState<{
@@ -17,20 +22,12 @@ export const useAuth = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      setIsLoading(true);
-      try {
-        const currentUser = await authService.getCurrentUser();
-        setUser(currentUser);
-        setIsAuthenticated(!!currentUser);
-      } catch (error) {
-        console.error("Error checking authentication status:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
+    // Intentar obtener el usuario del localStorage al cargar
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+        setUser(JSON.parse(storedUser));
+    }
+    setIsLoading(false);
   }, []);
 
   const validateEmail = (email: string): boolean => {
@@ -110,9 +107,10 @@ export const useAuth = () => {
       setUser({
         id: userData.id,
         email: userData.email,
-        roles: userData.roles || ["FARMER"],
+        token: userData.token,
       });
       setIsAuthenticated(true);
+      localStorage.setItem('user', JSON.stringify(userData));
 
       const urlParams = new URLSearchParams(window.location.search);
       const redirectTo = urlParams.get("redirectTo") || "/crops";
@@ -168,6 +166,7 @@ export const useAuth = () => {
     authService.logout();
     setUser(null);
     setIsAuthenticated(false);
+    localStorage.removeItem('user');
   };
 
   return {

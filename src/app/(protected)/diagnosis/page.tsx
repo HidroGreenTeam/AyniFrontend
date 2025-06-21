@@ -2,36 +2,66 @@
 
 import {
     AlertTriangle,
-    CheckCircle2,
     Info,
     RefreshCw,
     Upload
 } from "lucide-react";
 import Image from 'next/image';
 import React, { useState } from "react";
+import { getPrediction, getRecommendations, PredictionResponse, DiseaseInfo } from '@/features/diagnosis/services/predict';
 
 export default function DiagnosisPage() {
     const [activeStep, setActiveStep] = useState<
         "upload" | "analyzing" | "results"
     >("upload");
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
+    const [diseaseInfo, setDiseaseInfo] = useState<DiseaseInfo | null>(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const preview = URL.createObjectURL(file);
             setImagePreview(preview);
-
             setActiveStep("analyzing");
-            setTimeout(() => {
-                setActiveStep("results");
-            }, 6000);
+            setError(null);
+
+            try {
+                const predictionData = await getPrediction(file);
+                
+                if (predictionData.confidence >= 0.9) {
+                    setPrediction(predictionData);
+                    const diseaseName = getDiseaseName(predictionData.predicted_class);
+                    const diseaseData = await getRecommendations(diseaseName);
+                    setDiseaseInfo(diseaseData);
+                    setActiveStep("results");
+                } else {
+                    setError('La confianza del diagnóstico es muy baja. Por favor, intenta con otra imagen más clara.');
+                    setActiveStep("upload");
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err.message : 'Error al procesar la imagen');
+                setActiveStep("upload");
+            }
         }
     };
 
     const resetDiagnosis = () => {
         setActiveStep("upload");
         setImagePreview(null);
+        setPrediction(null);
+        setDiseaseInfo(null);
+    };
+
+    const getDiseaseName = (predictedClass: string) => {
+        const diseaseMap: { [key: string]: string } = {
+            'rust': 'Roya del café',
+            'healthy': 'Planta saludable',
+            'leaf_spot': 'Ojo de gallo',
+            'coffee_borer': 'Broca del café'
+        };
+        return diseaseMap[predictedClass] || predictedClass;
     };
 
     return (
@@ -50,6 +80,17 @@ export default function DiagnosisPage() {
 
             {/* Contenedor principal */}
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                {error && (
+                    <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg p-4">
+                        <div className="flex items-start">
+                            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mr-3 mt-0.5 flex-shrink-0" />
+                            <p className="text-sm text-red-800 dark:text-red-200">
+                                {error}
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 {activeStep === "upload" && (
                     <div className="flex flex-col items-center py-10">
                         <div className="bg-green-50 dark:bg-green-900/30 rounded-full p-4 mb-4">
@@ -123,7 +164,7 @@ export default function DiagnosisPage() {
                     </div>
                 )}
 
-                {activeStep === "results" && imagePreview && (
+                {activeStep === "results" && imagePreview && prediction && diseaseInfo && (
                     <div className="flex flex-col lg:flex-row gap-6">
                         <div className="lg:w-1/2">
                             <div className="rounded-lg overflow-hidden mb-4">
@@ -148,64 +189,27 @@ export default function DiagnosisPage() {
                             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-lg p-4 mb-4">
                                 <h3 className="font-semibold text-red-800 dark:text-red-300 flex items-center mb-1">
                                     <AlertTriangle className="h-5 w-5 mr-2 text-red-600 dark:text-red-400" />
-                                    Roya del café (93% de confianza)
+                                    {getDiseaseName(prediction.predicted_class)} ({(prediction.confidence * 100).toFixed(1)}% de confianza)
                                 </h3>
                                 <p className="text-sm text-red-800 dark:text-red-200">
-                                    Se ha detectado la enfermedad Roya del café (Hemileia vastatrix), un patógeno 
-                                    fúngico que puede causar defoliación severa y pérdidas significativas en la producción.
+                                    {diseaseInfo.description}
                                 </p>
                             </div>
 
                             <div className="space-y-4">
                                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                                     <h4 className="font-medium text-gray-800 dark:text-white mb-2">
-                                        Síntomas detectados:
-                                    </h4>
-                                    <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
-                                        <li className="flex items-start">
-                                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
-                                            Manchas amarillentas en el haz de las hojas
-                                        </li>
-                                        <li className="flex items-start">
-                                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
-                                            Polvillo anaranjado en el envés (esporas del hongo)
-                                        </li>
-                                        <li className="flex items-start">
-                                            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 mr-2 mt-0.5" />
-                                            Defoliación prematura en ramas afectadas
-                                        </li>
-                                    </ul>
-                                </div>
-
-                                <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                                    <h4 className="font-medium text-gray-800 dark:text-white mb-2">
                                         Recomendaciones:
                                     </h4>
                                     <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
-                                        <li className="flex items-start">
-                                            <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
-                                                <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
-                                            </div>
-                                            Aplicar fungicida cúprico o sistémico específico para roya
-                                        </li>
-                                        <li className="flex items-start">
-                                            <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
-                                                <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
-                                            </div>
-                                            Regular la sombra para mejorar ventilación
-                                        </li>
-                                        <li className="flex items-start">
-                                            <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
-                                                <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
-                                            </div>
-                                            Implementar variedades resistentes en futuras plantaciones
-                                        </li>
-                                        <li className="flex items-start">
-                                            <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
-                                                <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
-                                            </div>
-                                            Mantener adecuada fertilización con balance de nitrógeno
-                                        </li>
+                                        {diseaseInfo.recommendations.map((recommendation: string, index: number) => (
+                                            <li key={index} className="flex items-start">
+                                                <div className="bg-green-100 dark:bg-green-800 rounded-full p-1 mr-2 mt-0.5">
+                                                    <span className="block h-3 w-3 bg-green-600 rounded-full"></span>
+                                                </div>
+                                                {recommendation}
+                                            </li>
+                                        ))}
                                     </ul>
                                 </div>
 
