@@ -1,4 +1,3 @@
-import { User } from "@/models/User";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { authService } from "../services/authService";

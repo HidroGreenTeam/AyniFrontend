@@ -1,6 +1,7 @@
 "use client";
 
 import { authService } from "@/features/auth/services/authService";
+import { useFarmerProfile } from '@/features/farmers/hooks/useFarmerProfile';
 import {
   Bell,
   LogOut,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 interface HeaderProps {
   toggleTheme: () => void;
@@ -20,17 +22,11 @@ interface HeaderProps {
 }
 
 const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
+  const { farmer } = useFarmerProfile();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [notifications] = useState(3);
-  const [user] = useState({
-    fullName: "Carlos Mendoza",
-    email: "carlos.mendoza@ejemplo.com",
-    avatar: null
-  });
   const [isLoading] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null); 
-
-  
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -102,15 +98,19 @@ const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
                 aria-expanded={showUserMenu}
                 aria-haspopup="true"
               >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white border-2 border-white dark:border-gray-800 hover:shadow-md transition-all duration-200">
-                  <User className="h-5 w-5" />
+                <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white border-2 border-white dark:border-gray-800 hover:shadow-md transition-all duration-200">
+                  {farmer?.imageUrl ? (
+                    <Image src={farmer.imageUrl} alt={`Foto de perfil de ${farmer.username}`} width={36} height={36} className="object-cover w-full h-full" />
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
                 </div>
                 <div className="hidden md:block text-left">
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-200 line-clamp-1">
-                    {user?.fullName || "Agricultor"}
+                    {farmer?.username || "Agricultor"}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                    {user?.email || ""}
+                    {farmer?.email || ""}
                   </p>
                 </div>
               </button>

@@ -2,7 +2,6 @@
 
 import {
     AlertTriangle,
-    CheckCircle2,
     Info,
     RefreshCw,
     Upload
