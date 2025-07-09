@@ -58,13 +58,7 @@ export const useAuth = () => {
       }));
       return false;
     }
-    if (password.length < 6) {
-      setFormErrors((prev) => ({
-        ...prev,
-        password: "La contraseña debe tener al menos 6 caracteres",
-      }));
-      return false;
-    }
+    
     setFormErrors((prev) => ({ ...prev, password: undefined }));
     return true;
   };
