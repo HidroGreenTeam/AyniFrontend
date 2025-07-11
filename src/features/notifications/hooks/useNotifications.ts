@@ -65,7 +65,7 @@ export function useNotifications() {
     } finally {
       setLoading(false);
     }
-  }, [notifications, notificationsLastUpdated, setNotifications, user?.id]);
+  }, [notifications, notificationsLastUpdated, setNotifications, user]);
 
   // Cargar notificación específica
   const fetchNotificationById = useCallback(async (notificationId: number) => {

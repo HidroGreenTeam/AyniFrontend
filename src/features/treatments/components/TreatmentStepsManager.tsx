@@ -52,9 +52,7 @@ export function TreatmentStepsManager({
   const [showManualForm, setShowManualForm] = useState(false);
 
   const {
-    treatment,
     steps,
-    loading: detailsLoading,
     createStep,
     completeStep,
     fetchTreatmentDetails
@@ -63,7 +61,6 @@ export function TreatmentStepsManager({
   const {
     recommendations,
     loading: aiLoading,
-    error: aiError,
     generateRecommendations,
     formatForSteps
   } = useAIRecommendations();

@@ -8,8 +8,6 @@ import {
     Pill,
     ClipboardList,
     BookOpen,
-    Wallet,
-    Crown,
     Settings,
     ChevronRight,
     ChevronLeft,
