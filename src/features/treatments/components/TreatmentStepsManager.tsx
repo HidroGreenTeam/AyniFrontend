@@ -47,7 +47,7 @@ export function TreatmentStepsManager({
     description: '',
     scheduledDate: '',
     hasReminder: false,
-    reminderMinutesBefore: 60
+    reminderMinutesBefore: 0
   });
   const [showManualForm, setShowManualForm] = useState(false);
 
@@ -160,7 +160,7 @@ export function TreatmentStepsManager({
         description: '',
         scheduledDate: '',
         hasReminder: false,
-        reminderMinutesBefore: 60
+        reminderMinutesBefore: 0
       });
       setShowManualForm(false);
       onStepCreated?.();
@@ -287,7 +287,10 @@ export function TreatmentStepsManager({
                       {step.hasReminder && (
                         <span className="flex items-center">
                           <Clock className="h-3 w-3 mr-1" />
-                          Recordatorio {step.reminderMinutesBefore}min antes
+                          {step.reminderMinutesBefore === 0 
+                            ? 'Recordatorio en el momento exacto' 
+                            : `Recordatorio ${step.reminderMinutesBefore}min antes`
+                          }
                         </span>
                       )}
                     </div>
@@ -386,7 +389,10 @@ export function TreatmentStepsManager({
                           {step.hasReminder && (
                             <span className="flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              Recordatorio {step.reminderMinutesBefore}min antes
+                              {step.reminderMinutesBefore === 0 
+                                ? 'Recordatorio en el momento exacto' 
+                                : `Recordatorio ${step.reminderMinutesBefore}min antes`
+                              }
                             </span>
                           )}
                         </div>
@@ -492,15 +498,18 @@ export function TreatmentStepsManager({
                     Minutos antes del recordatorio
                   </label>
                   <select
-                    value={manualStep.reminderMinutesBefore || 60}
+                    value={manualStep.reminderMinutesBefore ?? 0}
                     onChange={(e) => setManualStep(prev => ({ ...prev, reminderMinutesBefore: parseInt(e.target.value) }))}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                   >
-                    <option value={15}>15 minutos</option>
-                    <option value={30}>30 minutos</option>
-                    <option value={60}>1 hora</option>
-                    <option value={120}>2 horas</option>
-                    <option value={1440}>1 día</option>
+                    <option value={0}>En el momento exacto (0 minutos)</option>
+                    <option value={5}>5 minutos antes</option>
+                    <option value={15}>15 minutos antes</option>
+                    <option value={30}>30 minutos antes</option>
+                    <option value={60}>1 hora antes</option>
+                    <option value={120}>2 horas antes</option>
+                    <option value={720}>12 horas antes</option>
+                    <option value={1440}>1 día antes</option>
                   </select>
                 </div>
               )}
