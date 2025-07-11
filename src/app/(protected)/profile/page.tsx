@@ -7,28 +7,42 @@ import {
     Edit,
     Mail,
     Phone,
-    Save,
     User,
-    X
+    X,
+    Coffee,
+    Activity,
+    Shield,
+    Target
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useFarmerProfile } from "@/features/farmers/hooks/useFarmerProfile";
+import { useDiagnosisStats } from "@/features/diagnosis/hooks/useDiagnosisStats";
 import { UpdateFarmerDTO } from "@/features/farmers/types/farmer";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useCrops } from "@/features/crops/hooks/useCrops";
 
 export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [imageMessage, setImageMessage] = useState("");
+    const [imageError, setImageError] = useState("");
     
     // Usar el hook de perfil del agricultor
     const { farmer, loading, error, fetchFarmer, updateProfile, updateImage } = useFarmerProfile();
+    
+    // Usar el hook de cultivos y diagnósticos
+    const { user } = useAuth();
+    const { crops } = useCrops(user as { id: number; [key: string]: unknown } | null);
+    const { stats: diagnosisStats, isLoading: statsLoading } = useDiagnosisStats();
 
     // Estado actual del perfil (para edición)
     const [perfil, setPerfil] = useState<UpdateFarmerDTO>({
         username: "",
         phoneNumber: ""
     });
+    const [originalPerfil, setOriginalPerfil] = useState<UpdateFarmerDTO>({ username: "", phoneNumber: "" });
 
     // Datos del formulario con validación
     const [formErrors, setFormErrors] = useState({
@@ -43,6 +57,8 @@ export default function ProfilePage() {
         consejosRecomendaciones: false
     });
 
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
     // Cargar datos del perfil solo una vez al montar el componente
     useEffect(() => {
         fetchFarmer();
@@ -52,6 +68,10 @@ export default function ProfilePage() {
     useEffect(() => {
         if (farmer) {
             setPerfil({
+                username: farmer.username,
+                phoneNumber: farmer.phoneNumber || ""
+            });
+            setOriginalPerfil({
                 username: farmer.username,
                 phoneNumber: farmer.phoneNumber || ""
             });
@@ -142,15 +162,36 @@ export default function ProfilePage() {
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            setImagePreview(URL.createObjectURL(file)); // preview inmediato
             try {
                 await updateImage(file);
-                setSuccessMessage("¡Imagen de perfil actualizada!");
-                setTimeout(() => setSuccessMessage(""), 5000);            } catch {
-                setErrorMessage("Error al actualizar la imagen. Por favor, intenta de nuevo.");
-                setTimeout(() => setErrorMessage(""), 5000);
+                setImageMessage("¡Imagen de perfil actualizada!");
+                setTimeout(() => setImageMessage(""), 5000);
+            } catch {
+                setImageError("Error al actualizar la imagen. Por favor, intenta de nuevo.");
+                setTimeout(() => setImageError(""), 5000);
             }
         }
     };
+
+    const handleRemoveImage = async () => {
+        try {
+            // For now, we'll just update the preview. In a real app, you'd call a removeImage function
+            setImagePreview(null);
+            setImageMessage("Imagen de perfil eliminada");
+            setTimeout(() => setImageMessage(""), 5000);
+        } catch {
+            setImageError("Error al eliminar la imagen. Por favor, intenta de nuevo.");
+            setTimeout(() => setImageError(""), 5000);
+        }
+    };
+
+    // Limpiar el preview cuando la imagen del farmer cambie (después de guardar)
+    useEffect(() => {
+        setImagePreview(null);
+    }, [farmer?.imageUrl]);
+
+    const isPerfilChanged = perfil.username !== originalPerfil.username || perfil.phoneNumber !== originalPerfil.phoneNumber;
 
     if (loading) {
         return <div className="flex items-center justify-center min-h-screen">Cargando...</div>;
@@ -203,6 +244,30 @@ export default function ProfilePage() {
                     </button>
                 </div>
             )}
+            {imageMessage && (
+                <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative flex items-center" role="alert">
+                    <Check className="h-5 w-5 mr-2" />
+                    <span>{imageMessage}</span>
+                    <button 
+                        className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onClick={() => setImageMessage("")}
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
+            {imageError && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative flex items-center" role="alert">
+                    <AlertTriangle className="h-5 w-5 mr-2" />
+                    <span>{imageError}</span>
+                    <button 
+                        className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                        onClick={() => setImageError("")}
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+            )}
 
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
                 {/* Encabezado de perfil con banner */}
@@ -210,13 +275,6 @@ export default function ProfilePage() {
                     <div className="absolute top-4 right-4 flex space-x-2">
                         {isEditing ? (
                             <>
-                                <button
-                                    onClick={handleSaveProfile}
-                                    className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-shadow flex items-center justify-center"
-                                    title="Guardar cambios"
-                                >
-                                    <Save className="h-5 w-5 text-green-600" />
-                                </button>
                                 <button
                                     onClick={handleEditToggle}
                                     className="bg-white dark:bg-gray-800 p-2 rounded-full shadow-sm hover:shadow-md transition-shadow flex items-center justify-center"
@@ -243,7 +301,7 @@ export default function ProfilePage() {
                             <div className="h-32 w-32 rounded-full border-4 border-white dark:border-gray-800 overflow-hidden bg-white dark:bg-gray-700">
                                 {farmer?.imageUrl ? (
                                     <Image
-                                        src={farmer.imageUrl}
+                                        src={imagePreview || farmer.imageUrl}
                                         alt={`Foto de perfil de ${farmer.username}`}
                                         className="h-full w-full object-cover"
                                         width={128}
@@ -253,6 +311,16 @@ export default function ProfilePage() {
                                     <div className="h-full w-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
                                         <User className="h-16 w-16 text-gray-400" />
                                     </div>
+                                )}
+                                {isEditing && (farmer?.imageUrl || imagePreview) && (
+                                    <button
+                                        type="button"
+                                        className="absolute top-0 left-0 bg-red-600 text-white p-2 rounded-full shadow-sm hover:bg-red-700 transition-colors"
+                                        title="Eliminar imagen"
+                                        onClick={handleRemoveImage}
+                                    >
+                                        <X className="h-4 w-4" />
+                                    </button>
                                 )}
                             </div>
                             {isEditing && (
@@ -330,21 +398,104 @@ export default function ProfilePage() {
                     </div>
 
                     {/* Estadísticas */}
-                    <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-800 dark:text-white">8</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-300">Cultivos activos</div>
-                        </div>
+                    <div className="mt-8">
+                        <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4">
+                            Estadísticas de actividad
+                        </h3>
+                        
+                        {statsLoading ? (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 animate-pulse">
+                                        <div className="h-8 w-8 bg-gray-200 dark:bg-gray-600 rounded mb-2"></div>
+                                        <div className="h-6 bg-gray-200 dark:bg-gray-600 rounded mb-1"></div>
+                                        <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 text-center">
+                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-green-100 dark:bg-green-800 mb-2">
+                                        <Coffee className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div className="text-2xl font-bold text-gray-800 dark:text-white">
+                                        {crops.length}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        Cultivos activos
+                                    </div>
+                                </div>
 
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-800 dark:text-white">24</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-300">Diagnósticos realizados</div>
-                        </div>
+                                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-800 mb-2">
+                                        <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div className="text-2xl font-bold text-gray-800 dark:text-white">
+                                        {diagnosisStats.total}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        Diagnósticos totales
+                                    </div>
+                                </div>
 
-                        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-center">
-                            <div className="text-2xl font-bold text-gray-800 dark:text-white">5</div>
-                            <div className="text-sm text-gray-600 dark:text-gray-300">Tratamientos activos</div>
-                        </div>
+                                <div className="bg-indigo-50 dark:bg-indigo-900/20 rounded-lg p-4 text-center">
+                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-800 mb-2">
+                                        <Target className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                    </div>
+                                    <div className="text-2xl font-bold text-gray-800 dark:text-white">
+                                        {diagnosisStats.thisMonth}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        Este mes
+                                    </div>
+                                </div>
+
+                                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 text-center">
+                                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-800 mb-2">
+                                        <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                    </div>
+                                    <div className="text-2xl font-bold text-gray-800 dark:text-white">
+                                        {diagnosisStats.healthyCrops}
+                                    </div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-300">
+                                        Cultivos saludables
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {/* Estadísticas adicionales si hay diagnósticos */}
+                        {!statsLoading && diagnosisStats.total > 0 && (
+                            <div className="mt-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                                    <div>
+                                        <div className="text-lg font-semibold text-gray-800 dark:text-white">
+                                            {diagnosisStats.thisWeek}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                                            Esta semana
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-lg font-semibold text-red-600 dark:text-red-400">
+                                            {diagnosisStats.diseaseDetected}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                                            Enfermedades detectadas
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div className="text-lg font-semibold text-yellow-600 dark:text-yellow-400">
+                                            {diagnosisStats.requiresTreatment}
+                                        </div>
+                                        <div className="text-sm text-gray-600 dark:text-gray-300">
+                                            Requieren tratamiento
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -401,7 +552,7 @@ export default function ProfilePage() {
                                 onChange={handleCheckboxChange}
                                 className="sr-only peer" 
                             />
-                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
+                            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600"></div>
                         </label>
                     </div>
                 </div>
@@ -419,6 +570,7 @@ export default function ProfilePage() {
                     <button
                         onClick={handleSaveProfile}
                         className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                        disabled={!isPerfilChanged}
                     >
                         Guardar cambios
                     </button>

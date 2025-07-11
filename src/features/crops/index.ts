@@ -14,4 +14,3 @@ export { default as CropForm } from './components/CropForm';
 export { default as CropDetail } from './components/CropDetail';
 export { default as CropsList } from './components/CropsList';
 export { default as CropsFilters } from './components/CropsFilters';
-export { default as CropsDashboard } from './components/CropsDashboard';

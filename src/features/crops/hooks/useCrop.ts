@@ -1,18 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Crop, UpdateCropDTO, UpdateIrrigationTypeDTO } from '../types/crop';
+import { Crop, UpdateCropDTO } from '../types/crop';
 import { 
     getCrop, 
     updateCrop, 
     deleteCrop, 
     updateCropImage, 
-    deleteCropImage, 
-    updateCropIrrigationType 
+    deleteCropImage 
 } from '../services/crop';
+import { useGlobalStore } from '@/store/globalStore';
 
 export function useCrop(cropId: number | null) {
     const [crop, setCrop] = useState<Crop | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    
+    // Obtener crops del global store para sincronizar cambios
+    const crops = useGlobalStore(state => state.crops);
+    const setCrops = useGlobalStore(state => state.setCrops);
 
     const fetchCrop = useCallback(async () => {
         if (!cropId) {
@@ -42,6 +46,10 @@ export function useCrop(cropId: number | null) {
             setError(null);
             const updatedCrop = await updateCrop(cropId, data);
             setCrop(updatedCrop);
+            
+            // Actualizar también en la lista global
+            setCrops(crops.map(c => c.id === cropId ? updatedCrop : c));
+            
             return updatedCrop;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error updating crop');
@@ -61,6 +69,9 @@ export function useCrop(cropId: number | null) {
             setError(null);
             await deleteCrop(cropId);
             setCrop(null);
+            
+            // Remover también de la lista global
+            setCrops(crops.filter(c => c.id !== cropId));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error deleting crop');
             throw err;
@@ -79,6 +90,10 @@ export function useCrop(cropId: number | null) {
             setError(null);
             const updatedCrop = await updateCropImage(cropId, file);
             setCrop(updatedCrop);
+            
+            // Actualizar también en la lista global
+            setCrops(crops.map(c => c.id === cropId ? updatedCrop : c));
+            
             return updatedCrop;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error updating crop image');
@@ -98,28 +113,13 @@ export function useCrop(cropId: number | null) {
             setError(null);
             const updatedCrop = await deleteCropImage(cropId);
             setCrop(updatedCrop);
+            
+            // Actualizar también en la lista global
+            setCrops(crops.map(c => c.id === cropId ? updatedCrop : c));
+            
             return updatedCrop;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error removing crop image');
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const updateIrrigationType = async (data: UpdateIrrigationTypeDTO) => {
-        if (!cropId) {
-            throw new Error('No crop ID provided');
-        }
-
-        try {
-            setLoading(true);
-            setError(null);
-            const updatedCrop = await updateCropIrrigationType(cropId, data);
-            setCrop(updatedCrop);
-            return updatedCrop;
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error updating irrigation type');
             throw err;
         } finally {
             setLoading(false);
@@ -139,6 +139,5 @@ export function useCrop(cropId: number | null) {
         removeCrop,
         updateImage,
         removeImage,
-        updateIrrigationType,
     };
 }

@@ -2,26 +2,17 @@
 
 import { Plus, Sprout } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useCrops } from "@/features/crops/hooks/useCrops";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import CropForm from "@/features/crops/components/CropForm";
 import CropDetail from "@/features/crops/components/CropDetail";
 import CropsList from "@/features/crops/components/CropsList";
 import CropsFilters from "@/features/crops/components/CropsFilters";
 import { Crop, CreateCropDTO, UpdateCropDTO } from "@/features/crops/types/crop";
+import { useCrops } from "@/features/crops/hooks/useCrops";
 
 export default function CropsPage() {
-  const { user } = useAuth();  const { 
-    crops, 
-    loading, 
-    error, 
-    fetchCropsByFarmerId, 
-    createCrop, 
-    updateCropData, 
-    removeCrop, 
-    updateImage, 
-    updateIrrigationType 
-  } = useCrops();
+  const { user } = useAuth();
+  const { crops, loading, error, fetchCropsByFarmerId, createCrop, updateCropData, removeCrop, updateImage } = useCrops(user as { id: number; [key: string]: unknown } | null);
   
   const [showForm, setShowForm] = useState(false);
   const [showDetail, setShowDetail] = useState(false);
@@ -30,7 +21,7 @@ export default function CropsPage() {
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // Load crops for the current farmer
+  // Para cargar cultivos:
   useEffect(() => {
     if (user?.id) {
       fetchCropsByFarmerId(user.id);
@@ -38,7 +29,7 @@ export default function CropsPage() {
   }, [user?.id, fetchCropsByFarmerId]);
 
   // Filter crops based on selected filters
-  const filteredCrops = crops.filter(crop => {
+  const filteredCrops = crops.filter((crop: Crop) => {
     const typeMatch = filterType === 'all' || crop.cropName.toLowerCase().includes(filterType.toLowerCase());
     // For now, we'll consider all crops as 'healthy' for the status filter
     const statusMatch = filterStatus === 'all' || filterStatus === 'healthy';
@@ -49,24 +40,39 @@ export default function CropsPage() {
     if (!file) {
       throw new Error('Image is required');
     }
-    await createCrop(data, file);
+    if (!user?.id) {
+      throw new Error('User ID is required');
+    }
+    try {
+    await createCrop(user.id, data, file);
     setShowForm(false);
+    } catch (err: unknown) {
+      console.error('Error al crear cultivo:', err);
+    }
   };
 
   const handleUpdateCrop = async (data: UpdateCropDTO, file?: File) => {
     if (!editingCrop) return;
     
+    try {
     await updateCropData(editingCrop.id, data);
     if (file) {
       await updateImage(editingCrop.id, file);
     }
     setEditingCrop(null);
     setShowForm(false);
+    } catch (err: unknown) {
+      console.error('Error al actualizar cultivo:', err);
+    }
   };
 
   const handleDeleteCrop = async (cropId: number) => {
     if (confirm('¿Estás seguro de que quieres eliminar este cultivo?')) {
+      try {
       await removeCrop(cropId);
+      } catch (err: unknown) {
+        console.error('Error al eliminar cultivo:', err);
+      }
     }
   };
 
@@ -81,15 +87,15 @@ export default function CropsPage() {
   };
 
   const handleUpdateImage = async (cropId: number, file: File) => {
+    try {
     await updateImage(cropId, file);
-  };
-
-  const handleUpdateIrrigationType = async (cropId: number, data: { irrigationType: 'Manual' | 'Automatic' }) => {
-    await updateIrrigationType(cropId, data);
+    } catch (err: unknown) {
+      console.error('Error al actualizar imagen:', err);
+    }
   };
 
   // Get unique crop types for filter
-  const cropTypes = Array.from(new Set(crops.map(crop => crop.cropName)));
+  const cropTypes = Array.from(new Set(crops.map((crop: Crop) => crop.cropName))) as string[];
 
   if (error) {
     return (
@@ -171,7 +177,6 @@ export default function CropsPage() {
         onEdit={handleEditCrop}
         onDelete={handleDeleteCrop}
         onUpdateImage={handleUpdateImage}
-        onUpdateIrrigationType={handleUpdateIrrigationType}
       />
     </div>
   );

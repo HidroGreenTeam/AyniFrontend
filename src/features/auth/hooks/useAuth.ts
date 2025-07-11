@@ -1,8 +1,9 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { authService } from "../services/authService";
+import { login, register, logout as logoutService } from "../services/authService";
+import { useGlobalStore } from '@/store/globalStore';
 
-interface AuthUser {
+export interface AuthUser {
     id: number;
     email: string;
     token: string;
@@ -19,16 +20,20 @@ export const useAuth = () => {
     general?: string;
   }>({});
 
+  const setUserGlobal = useGlobalStore(state => state.setUser);
+
   const router = useRouter();
 
   useEffect(() => {
     // Intentar obtener el usuario del localStorage al cargar
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setUserGlobal(parsedUser); // setea el user global
     }
     setIsLoading(false);
-  }, []);
+  }, [setUserGlobal]);
 
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -96,13 +101,18 @@ export const useAuth = () => {
 
     try {
       setIsLoading(true);
-      const userData = await authService.login(email, password);
+      const userData = await login(email, password);
 
       setUser({
         id: userData.id,
         email: userData.email,
         token: userData.token,
       });
+      setUserGlobal({
+        id: userData.id,
+        email: userData.email,
+        token: userData.token,
+      }); // setea el user global
       setIsAuthenticated(true);
       localStorage.setItem('user', JSON.stringify(userData));
 
@@ -140,9 +150,11 @@ export const useAuth = () => {
 
     try {
       setIsLoading(true);
-      await authService.register(fullName, email, password);
+      await register(fullName, email, password);
 
-      return await handleLogin(email, password);
+      const loginSuccess = await handleLogin(email, password);
+      // handleLogin ya setea el user global
+      return loginSuccess;
     } catch (error) {
       console.error("Error during registration:", error);
       setFormErrors((prev) => ({
@@ -157,8 +169,9 @@ export const useAuth = () => {
   };
 
   const logout = () => {
-    authService.logout();
+    logoutService();
     setUser(null);
+    setUserGlobal(null); // limpia el user global
     setIsAuthenticated(false);
     localStorage.removeItem('user');
   };

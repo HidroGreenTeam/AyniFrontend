@@ -1,161 +1,97 @@
 "use client";
 
-import { authService } from "@/features/auth/services/authService";
-import { useFarmerProfile } from '@/features/farmers/hooks/useFarmerProfile';
-import {
-  Bell,
-  LogOut,
-  Menu,
-  Moon,
-  Settings,
-  Sun,
-  User
-} from "lucide-react";
+import { Bell } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+// Removed useFarmerProfile import - using user data directly
+import { usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
-interface HeaderProps {
-  toggleTheme: () => void;
-  theme: string;
-  setIsMobileMenuOpen: (isOpen: boolean) => void;
-}
-
-const Header = ({ toggleTheme, theme, setIsMobileMenuOpen }: HeaderProps) => {
-  const { farmer } = useFarmerProfile();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [notifications] = useState(3);
-  const [isLoading] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
-      }
+const getPageTitle = (pathname: string): string => {
+    const pageMap: { [key: string]: string } = {
+        '/dashboard': 'Dashboard',
+        '/crops': 'Mis Cultivos',
+        '/diagnosis': 'Diagnóstico',
+        '/treatments': 'Tratamientos',
+        '/history': 'Historial',
+        '/library': 'Biblioteca',
+        '/notifications': 'Notificaciones',
+        '/profile': 'Mi Perfil',
+        '/settings': 'Configuración',
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const handleLogout = () => {
-    authService.logout();
-  };
-
-  return (
-    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30 transition-colors duration-300">
-      <div className="px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Botón de menú móvil */}
-        <div className="flex items-center">
-          <button
-            type="button"
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all duration-200"
-            onClick={() => setIsMobileMenuOpen(true)}
-            aria-label="Abrir menú"
-          >
-            <Menu className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Acciones y perfil */}
-        <div className="flex items-center space-x-1 md:space-x-3">
-          {/* Botón tema claro/oscuro */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
-            aria-label={theme === "dark" ? "Cambiar a tema claro" : "Cambiar a tema oscuro"}
-          >
-            {theme === "dark" ? (
-              <Sun className="h-5 w-5 transform transition-transform duration-300 hover:rotate-12" />
-            ) : (
-              <Moon className="h-5 w-5 transform transition-transform duration-300 hover:-rotate-12" />
-            )}
-          </button>
-
-          {/* Botón de notificaciones */}
-          <Link
-            href="/notifications"
-            className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 relative"
-            aria-label="Notificaciones"
-          >
-            <Bell className="h-5 w-5" />
-            {notifications > 0 && (
-              <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transform scale-90 transition-transform hover:scale-100">
-                {notifications}
-              </span>
-            )}
-          </Link>
-
-          {/* Perfil de usuario - siempre visible */}
-          {!isLoading && (
-            <div className="relative" ref={userMenuRef}>
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-3 focus:outline-none"
-                aria-expanded={showUserMenu}
-                aria-haspopup="true"
-              >
-                <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white border-2 border-white dark:border-gray-800 hover:shadow-md transition-all duration-200">
-                  {farmer?.imageUrl ? (
-                    <Image src={farmer.imageUrl} alt={`Foto de perfil de ${farmer.username}`} width={36} height={36} className="object-cover w-full h-full" />
-                  ) : (
-                    <User className="h-5 w-5" />
-                  )}
-                </div>
-                <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200 line-clamp-1">
-                    {farmer?.username || "Agricultor"}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
-                    {farmer?.email || ""}
-                  </p>
-                </div>
-              </button>
-
-              {/* Menú desplegable */}
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-64 rounded-md shadow-lg py-1 z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transform origin-top-right transition-all duration-200 animate-fadeIn ring-1 ring-black ring-opacity-5 focus:outline-none">
-                  <div className="py-1">
-                    {/* Opciones principales (Perfil y Configuración) siempre visibles */}
-                    <Link
-                      href="/profile"
-                      className="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <User className="h-4 w-4 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-green-500 dark:group-hover:text-green-400" />
-                      Mi perfil
-                    </Link>
-
-                    <Link
-                      href="/settings"
-                      className="group flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <Settings className="h-4 w-4 mr-3 text-gray-500 dark:text-gray-400 group-hover:text-green-500 dark:group-hover:text-green-400" />
-                      Configuración
-                    </Link>
-                  </div>
-                  
-                  <div className="py-1 border-t border-gray-200 dark:border-gray-700">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left group flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <LogOut className="h-4 w-4 mr-3 group-hover:translate-x-1 transition-transform duration-200" />
-                      Cerrar sesión
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </header>
-  );
+    return pageMap[pathname] || 'Ayni';
 };
 
-export default Header;
+export default function Header() {
+    const { user } = useAuth();
+    // Using user data directly instead of farmer profile
+    const pathname = usePathname();
+
+    return (
+        <header className="sticky top-0 z-40 flex h-16 flex-shrink-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+            <div className="flex flex-1 justify-between items-center px-4">
+                {/* Logo y título de la página */}
+                <div className="flex items-center gap-3">
+                    <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                        <Image
+                            src="/favicon.ico"
+                            alt="Ayni Logo"
+                            width={32}
+                            height={32}
+                            className="rounded-lg shadow-sm"
+                        />
+                        <span className="text-xl font-bold text-green-600 dark:text-green-400 hidden sm:block">
+                            Ayni
+                        </span>
+                    </Link>
+                    <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 hidden sm:block"></div>
+                    <h1 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
+                        {getPageTitle(pathname)}
+                    </h1>
+                </div>
+
+                {/* Controles del header */}
+                <div className="flex items-center gap-3">
+                    {/* Notificaciones */}
+                    <Link
+                        href="/notifications"
+                        className="relative rounded-full bg-white dark:bg-gray-800 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                    >
+                        <span className="sr-only">Ver notificaciones</span>
+                        <Bell className="h-5 w-5" />
+                        {/* Indicador de notificaciones */}
+                        <span className="absolute -top-0.5 -right-0.5 h-2 w-2 bg-red-500 rounded-full"></span>
+                    </Link>
+
+                    {/* Cambio de tema */}
+                    <ThemeToggle />
+
+                    {/* Perfil de usuario */}
+                    <Link
+                        href="/profile"
+                        className="flex items-center gap-3 rounded-lg bg-white dark:bg-gray-800 px-3 py-2 text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
+                    >
+                        {/* Avatar del usuario */}
+                        <div className="relative">
+                            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold">
+                                {user?.email?.charAt(0).toUpperCase() || 'U'}
+                            </div>
+                        </div>
+
+                        {/* Información del usuario */}
+                        <div className="flex flex-col items-start">
+                            <span className="font-medium text-gray-900 dark:text-white">
+                                {user?.email?.split('@')[0] || 'Usuario'}
+                            </span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                                {user?.email || 'usuario@ejemplo.com'}
+                            </span>
+                        </div>
+                    </Link>
+                </div>
+            </div>
+        </header>
+    );
+}

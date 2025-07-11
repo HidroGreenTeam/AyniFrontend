@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { X, Upload, Calendar, MapPin, Droplets, Sprout } from 'lucide-react';
-import { Crop, CreateCropDTO, UpdateCropDTO, IrrigationType } from '../types/crop';
+import { X, Upload, Calendar, MapPin, Sprout } from 'lucide-react';
+import { Crop, CreateCropDTO, UpdateCropDTO } from '../types/crop';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
 interface CropFormProps {
@@ -24,44 +24,43 @@ export default function CropForm({
     const { user } = useAuth();
     const [formData, setFormData] = useState({
         cropName: '',
-        irrigationType: 'Manual' as IrrigationType,
         area: 0,
         plantingDate: '',
-        farmerId: user?.id || 0
+        location: ''
     });
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>('');
     const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     // Initialize form with crop data when editing
     useEffect(() => {
         if (crop) {
             setFormData({
                 cropName: crop.cropName,
-                irrigationType: crop.irrigationType as IrrigationType,
                 area: crop.area,
                 plantingDate: crop.plantingDate.split('T')[0], // Format for date input
-                farmerId: crop.farmerId
+                location: crop.location
             });
             setPreviewUrl(crop.imageUrl || '');
         } else {
             setFormData({
                 cropName: '',
-                irrigationType: 'Manual',
                 area: 0,
                 plantingDate: '',
-                farmerId: user?.id || 0
+                location: ''
             });
             setPreviewUrl('');
         }
         setSelectedFile(null);
+        setErrorMessage(null);
     }, [crop, user?.id]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: name === 'area' ? parseFloat(value) || 0 : value
+            [name]: name === 'area' ? value === '' ? '' : parseFloat(value) || 0 : value
         }));
     };
 
@@ -78,12 +77,12 @@ export default function CropForm({
         e.preventDefault();
         
         if (!formData.cropName || !formData.plantingDate || formData.area <= 0) {
-            alert('Por favor completa todos los campos requeridos');
+            setErrorMessage('Por favor completa todos los campos requeridos');
             return;
         }
 
         if (!crop && !selectedFile) {
-            alert('Por favor selecciona una imagen para el cultivo');
+            setErrorMessage('Por favor selecciona una imagen para el cultivo');
             return;
         }
 
@@ -98,7 +97,7 @@ export default function CropForm({
             onClose();
         } catch (error) {
             console.error('Error submitting form:', error);
-            alert('Error al guardar el cultivo');
+            setErrorMessage('Error al guardar el cultivo');
         } finally {
             setLoading(false);
         }
@@ -107,13 +106,13 @@ export default function CropForm({
     const resetForm = () => {
         setFormData({
             cropName: '',
-            irrigationType: 'Manual',
             area: 0,
             plantingDate: '',
-            farmerId: user?.id || 0
+            location: ''
         });
         setSelectedFile(null);
         setPreviewUrl('');
+        setErrorMessage(null);
     };
 
     const handleClose = () => {
@@ -153,6 +152,18 @@ export default function CropForm({
 
                     {/* Scrollable Content */}
                     <div className="max-h-[70vh] overflow-y-auto">
+                        {/* Error Message */}
+                        {errorMessage && (
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                                <strong className="font-bold">Error!</strong>
+                                <span className="block sm:inline"> {errorMessage}</span>
+                                <span className="absolute top-0 bottom-0 right-0 px-4 py-3">
+                                    <button onClick={() => setErrorMessage(null)} className="text-red-700">
+                                        <X className="h-6 w-6 text-red-700" />
+                                    </button>
+                                </span>
+                            </div>
+                        )}
                         {/* Form */}
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             {/* Image Upload */}
@@ -209,7 +220,7 @@ export default function CropForm({
                                     value={formData.cropName}
                                     onChange={handleInputChange}
                                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                    placeholder="Ej: Café Arábica, Maíz, etc."
+                                    placeholder="Ej: Café"
                                     required
                                 />
                             </div>
@@ -235,23 +246,20 @@ export default function CropForm({
                                 </div>
                             </div>
 
-                            {/* Irrigation Type */}
+                            {/* Location */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Tipo de riego
+                                    Ubicación *
                                 </label>
-                                <div className="relative">
-                                    <Droplets className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
-                                    <select
-                                        name="irrigationType"
-                                        value={formData.irrigationType}
-                                        onChange={handleInputChange}
-                                        className="w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                                    >
-                                        <option value="Manual">Manual</option>
-                                        <option value="Automatic">Automático</option>
-                                    </select>
-                                </div>
+                                <input
+                                    type="text"
+                                    name="location"
+                                    value={formData.location}
+                                    onChange={handleInputChange}
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                                    placeholder="Ej: Huancayo, Junín, Perú"
+                                    required
+                                />
                             </div>
 
                             {/* Planting Date */}

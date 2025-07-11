@@ -1,19 +1,16 @@
 "use client";
 
-import { useState } from 'react';
+// import { useState } from 'react';
 import Image from 'next/image';
 import { 
     X, 
     Calendar, 
     MapPin, 
-    Droplets, 
-    Edit, 
-    Trash2, 
     Camera,
     TrendingUp,
     Activity
 } from 'lucide-react';
-import { Crop, UpdateIrrigationTypeDTO } from '../types/crop';
+import { Crop } from '../types/crop';
 
 interface CropDetailProps {
     crop: Crop | null;
@@ -22,19 +19,15 @@ interface CropDetailProps {
     onEdit?: (crop: Crop) => void;
     onDelete?: (cropId: number) => void;
     onUpdateImage?: (cropId: number, file: File) => void;
-    onUpdateIrrigationType?: (cropId: number, data: UpdateIrrigationTypeDTO) => void;
 }
 
 export default function CropDetail({ 
     crop,
     isOpen, 
     onClose, 
-    onEdit, 
-    onDelete,
-    onUpdateImage,
-    onUpdateIrrigationType
+    onUpdateImage
 }: CropDetailProps) {
-    const [isChangingIrrigation, setIsChangingIrrigation] = useState(false);
+    // const [isChangingIrrigation, setIsChangingIrrigation] = useState(false);
 
     if (!isOpen || !crop) return null;
 
@@ -71,12 +64,10 @@ export default function CropDetail({
         }
     };
 
-    const handleIrrigationChange = (newType: 'Manual' | 'Automatic') => {
-        if (onUpdateIrrigationType) {
-            onUpdateIrrigationType(crop.id, { irrigationType: newType });
-            setIsChangingIrrigation(false);
-        }
-    };
+    // const handleIrrigationChange = (newType: 'Manual' | 'Automatic') => {
+    //     // This function is no longer used as irrigationType is removed
+    //     // Keeping it for now in case it's called elsewhere, but it will do nothing
+    // };
 
     return (
         <>
@@ -210,86 +201,18 @@ export default function CropDetail({
                                             </div>
                                         </div>
                                         
+                                        {/* En la sección de información del cultivo, agrega un bloque para mostrar crop.location */}
                                         <div className="flex items-center">
-                                            <Droplets className="w-5 h-5 text-gray-400 mr-3" />
-                                            <div className="flex-1">
-                                                <p className="text-sm text-gray-600 dark:text-gray-400">Tipo de riego</p>
-                                                {isChangingIrrigation ? (
-                                                    <div className="flex space-x-2 mt-1">
-                                                        <button
-                                                            onClick={() => handleIrrigationChange('Manual')}
-                                                            className={`px-3 py-1 text-sm rounded ${
-                                                                crop.irrigationType === 'Manual' 
-                                                                    ? 'bg-green-600 text-white' 
-                                                                    : 'bg-gray-200 text-gray-700'
-                                                            }`}
-                                                        >
-                                                            Manual
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleIrrigationChange('Automatic')}
-                                                            className={`px-3 py-1 text-sm rounded ${
-                                                                crop.irrigationType === 'Automatic' 
-                                                                    ? 'bg-green-600 text-white' 
-                                                                    : 'bg-gray-200 text-gray-700'
-                                                            }`}
-                                                        >
-                                                            Automático
-                                                        </button>
-                                                        <button
-                                                            onClick={() => setIsChangingIrrigation(false)}
-                                                            className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800"
-                                                        >
-                                                            Cancelar
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center">
-                                                        <p className="text-gray-800 dark:text-white mr-2">
-                                                            Riego {crop.irrigationType.toLowerCase()}
-                                                        </p>
-                                                        {onUpdateIrrigationType && (
-                                                            <button
-                                                                onClick={() => setIsChangingIrrigation(true)}
-                                                                className="text-xs text-green-600 hover:text-green-700"
-                                                            >
-                                                                Cambiar
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                )}
+                                            <MapPin className="w-5 h-5 text-gray-400 mr-3" />
+                                            <div>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400">Ubicación</p>
+                                                <p className="text-gray-800 dark:text-white">{crop.location}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-                                {onEdit && (
-                                    <button
-                                        onClick={() => onEdit(crop)}
-                                        className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                                    >
-                                        <Edit className="w-4 h-4 mr-2" />
-                                        Editar cultivo
-                                    </button>
-                                )}
-                                {onDelete && (
-                                    <button
-                                        onClick={() => {
-                                            if (confirm('¿Estás seguro de que quieres eliminar este cultivo?')) {
-                                                onDelete(crop.id);
-                                                onClose();
-                                            }
-                                        }}
-                                        className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        Eliminar
-                                    </button>
-                                )}
-                            </div>
+ 
                         </div>
                     </div>
                 </div>

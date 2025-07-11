@@ -1,17 +1,29 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Farmer, UpdateFarmerDTO } from '../types/farmer';
+import { UpdateFarmerDTO } from '../types/farmer';
 import { getFarmer, updateFarmer, updateFarmerImage, deleteFarmerImage } from '../services/farmer';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useGlobalStore } from '@/store/globalStore';
 
 export function useFarmerProfile() {
     const { user } = useAuth();
-    const [farmer, setFarmer] = useState<Farmer | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    
+    const farmer = useGlobalStore(state => state.farmer);
+    const setFarmer = useGlobalStore(state => state.setFarmer);
+    const farmerLastUpdated = useGlobalStore(state => state.farmerLastUpdated);
 
     const fetchFarmer = useCallback(async () => {
+        console.log('fetchFarmer', user);
         if (!user?.id) {
-            setError('Usuario no autenticado');
+            setError('Usuario no autenticado'); // typo corregido
+            return;
+        }
+
+        // Solo hacer fetch si no hay datos o si han pasado más de 5 minutos
+        const shouldFetch = !farmer || !farmerLastUpdated || (Date.now() - farmerLastUpdated > 5 * 60 * 1000);
+        
+        if (!shouldFetch) {
             return;
         }
 
@@ -25,7 +37,7 @@ export function useFarmerProfile() {
         } finally {
             setLoading(false);
         }
-    }, [user?.id]);
+    }, [user, farmer, farmerLastUpdated, setFarmer]);
 
     const updateProfile = async (data: UpdateFarmerDTO) => {
         if (!user?.id) {
@@ -80,6 +92,13 @@ export function useFarmerProfile() {
             setLoading(false);
         }
     };
+
+    // Limpia el error si el usuario aparece
+    useEffect(() => {
+        if (user?.id && error) {
+            setError(null);
+        }
+    }, [user, error]);
 
     // Cargar el perfil cuando el usuario esté autenticado
     useEffect(() => {

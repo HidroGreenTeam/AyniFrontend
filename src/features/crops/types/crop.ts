@@ -1,31 +1,23 @@
 export interface Crop {
     id: number;
     cropName: string;
-    irrigationType: string;
     area: number;
     plantingDate: string;
     farmerId: number;
     imageUrl: string;
+    location: string;
 }
 
 export interface CreateCropDTO {
     cropName: string;
-    irrigationType: 'Manual' | 'Automatic';
     area: number;
     plantingDate: string;
-    farmerId: number;
+    location: string;
 }
 
 export interface UpdateCropDTO {
     cropName: string;
-    irrigationType: 'Manual' | 'Automatic';
     area: number;
     plantingDate: string;
-    farmerId: number;
+    location: string;
 }
-
-export interface UpdateIrrigationTypeDTO {
-    irrigationType: 'Manual' | 'Automatic';
-}
-
-export type IrrigationType = 'Manual' | 'Automatic';

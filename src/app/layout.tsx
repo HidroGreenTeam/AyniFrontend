@@ -10,7 +10,8 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "Ayni",
-  description: "Plataforma de diagnóstico para cultivos",
+  description: "Plataforma de diagnóstico para cultivos con inteligencia artificial",
+  
 };
 
 export default function RootLayout({
@@ -19,7 +20,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+        
+      </head>
       <body className={`${nunito.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>

@@ -1,61 +1,44 @@
 "use client";
 
-import {
-  AlertTriangle,
-  Bell,
-  CheckCircle2,
-  Clock,
-  MoreVertical,
-  Pill,
-  Trash2
-} from "lucide-react";
-import { useState } from "react";
+import { Bell, Trash2 } from "lucide-react";
+import { useEffect } from "react";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { NotificationsList, useNotifications } from "@/features/notifications";
 
 export default function NotificacionesPage() {
-  const [isLoading] = useState(false);
- 
+  const { user } = useAuth();
+  const {
+    notifications,
+    notificationStats,
+    loading,
+    error,
+    getUnreadCount,
+    fetchProfileNotifications
+  } = useNotifications();
 
-  // Datos de ejemplo para las notificaciones
-  const notificaciones = [
-    {
-      id: 1,
-      tipo: "alerta",
-      icono: <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />,
-      titulo: "Necesita atención urgente",
-      mensaje: "Se ha detectado Mildiú polvoso en tus Fresas (Invernadero).",
-      tiempo: "Hace 1 hora",
-      leido: false
-    },
-    {
-      id: 2,
-      tipo: "recordatorio",
-      icono: <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />,
-      titulo: "Recordatorio de tratamiento",
-      mensaje: "Es hora de aplicar la solución fungicida en tus Fresas.",
-      tiempo: "Hace 3 horas",
-      leido: false
-    },
-    {
-      id: 3,
-      tipo: "tratamiento",
-      icono: <Pill className="h-5 w-5 text-purple-600 dark:text-purple-400" />,
-      titulo: "Tratamiento completado",
-      mensaje: "El tratamiento para Tizón temprano en Tomates Cherry ha sido completado con éxito.",
-      tiempo: "Ayer",
-      leido: true
-    },
-    {
-      id: 5,
-      tipo: "exito",
-      icono: <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />,
-      titulo: "Diagnóstico completado",
-      mensaje: "Tu diagnóstico para Papas (Huerto 3) ha sido completado. No se detectaron enfermedades.",
-      tiempo: "Hace 3 días",
-      leido: true
+  // Cargar notificaciones cuando el usuario esté disponible
+  useEffect(() => {
+    if (user?.id) {
+      console.log('🔔 NotificationsPage - Cargando notificaciones para user.id:', user.id);
+      fetchProfileNotifications();
     }
-  ];
+  }, [user?.id, fetchProfileNotifications]);
 
-  const noLeidas = notificaciones.filter(n => !n.leido).length;
+  const unreadCount = getUnreadCount();
+
+  const handleMarkAllAsRead = async () => {
+    // Esta funcionalidad se puede implementar después
+    console.log("Marcar todas como leídas");
+  };
+
+  const handleDeleteAll = async () => {
+    // Esta funcionalidad se puede implementar después
+    console.log("Eliminar todas");
+  };
+
+  const handleRefresh = () => {
+    fetchProfileNotifications();
+  };
 
   return (
     <div className="space-y-6">
@@ -72,10 +55,24 @@ export default function NotificacionesPage() {
         </div>
 
         <div className="flex space-x-3">
-          <button className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <button 
+            onClick={handleRefresh}
+            disabled={loading}
+            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+          >
+            {loading ? "Actualizando..." : "Actualizar"}
+          </button>
+          <button 
+            onClick={handleMarkAllAsRead}
+            disabled={unreadCount === 0}
+            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+          >
             Marcar todas como leídas
           </button>
-          <button className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center">
+          <button 
+            onClick={handleDeleteAll}
+            className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center"
+          >
             <Trash2 className="h-4 w-4 mr-2" />
             Eliminar todas
           </button>
@@ -86,87 +83,51 @@ export default function NotificacionesPage() {
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-gray-700 dark:text-gray-300">Total:</span>
-          <span className="font-medium text-gray-900 dark:text-white">{notificaciones.length} notificaciones</span>
+          <span className="font-medium text-gray-900 dark:text-white">
+            {notificationStats?.total || notifications.length} notificaciones
+          </span>
         </div>
         <div className="flex items-center space-x-2">
           <span className="text-gray-700 dark:text-gray-300">No leídas:</span>
-          <span className="bg-green-600 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">{noLeidas}</span>
+          <span className="bg-green-600 text-white text-xs font-medium px-2.5 py-0.5 rounded-full">
+            {unreadCount}
+          </span>
         </div>
       </div>
 
-      {/* Lista de notificaciones */}
-      {isLoading ? (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 flex items-center justify-center border border-gray-100 dark:border-gray-700">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-          <span className="ml-3 text-gray-600 dark:text-gray-300">Cargando notificaciones...</span>
-        </div>
-      ) : (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-          <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {notificaciones.map((notificacion) => (
-              <div 
-                key={notificacion.id} 
-                className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
-                  !notificacion.leido ? "bg-green-50/30 dark:bg-green-900/5" : ""
-                }`}
-              >
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 mr-3">
-                    <div className={`h-10 w-10 rounded-full ${
-                      !notificacion.leido ? "bg-white dark:bg-gray-800" : "bg-gray-100 dark:bg-gray-700"
-                    } flex items-center justify-center`}>
-                      {notificacion.icono}
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className={`text-sm font-medium ${
-                        !notificacion.leido ? "text-gray-900 dark:text-white" : "text-gray-700 dark:text-gray-300"
-                      }`}>
-                        {notificacion.titulo}
-                      </p>
-                      <div className="flex items-center ml-2">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {notificacion.tiempo}
-                        </span>
-                        <button className="ml-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300">
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                      {notificacion.mensaje}
-                    </p>
-                    
-                    <div className="mt-2 flex space-x-2">
-                      <button className="text-xs text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300">
-                        Ver detalles
-                      </button>
-                      {!notificacion.leido && (
-                        <button className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-                          Marcar como leída
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+      {/* Error estado */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
+              <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                {error}
               </div>
-            ))}
-          </div>
-          
-          {/* Paginación */}
-          <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
-            <div className="text-sm text-gray-600 dark:text-gray-300">
-              Mostrando las últimas 5 notificaciones
+              <div className="mt-3">
+                <button
+                  onClick={handleRefresh}
+                  className="bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 px-3 py-1 rounded text-sm hover:bg-red-200 dark:hover:bg-red-700 transition-colors"
+                >
+                  Reintentar
+                </button>
+              </div>
             </div>
-            <button className="px-3 py-1 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 text-sm rounded hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-              Ver todas
-            </button>
           </div>
         </div>
       )}
+
+      {/* Lista de notificaciones usando el componente */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div className="p-6">
+          <NotificationsList 
+            showAll={true}
+            onNotificationClick={(id) => {
+              console.log(`Clicked notification ${id}`);
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }

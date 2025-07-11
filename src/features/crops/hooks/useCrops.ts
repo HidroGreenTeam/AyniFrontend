@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Crop, CreateCropDTO, UpdateCropDTO, UpdateIrrigationTypeDTO } from '../types/crop';
+import { CreateCropDTO, UpdateCropDTO } from '../types/crop';
 import { 
     getAllCrops, 
     createCropWithImage, 
@@ -7,12 +7,17 @@ import {
     deleteCrop, 
     updateCropImage, 
     deleteCropImage, 
-    updateCropIrrigationType,
     getCropsByFarmerId 
 } from '../services/crop';
+import { useGlobalStore } from '@/store/globalStore';
 
-export function useCrops() {
-    const [crops, setCrops] = useState<Crop[]>([]);
+// Define un tipo mínimo para el usuario
+interface MinimalUser { id: number; [key: string]: unknown }
+
+export function useCrops(user: MinimalUser | null) {
+    const crops = useGlobalStore(state => state.crops);
+    const setCrops = useGlobalStore(state => state.setCrops);
+    // const cropsLastUpdated = useGlobalStore(state => state.cropsLastUpdated);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -20,32 +25,41 @@ export function useCrops() {
         try {
             setLoading(true);
             setError(null);
+            // Solo hacer fetch si no hay cultivos
+            if (!crops || crops.length === 0) {
             const data = await getAllCrops();
             setCrops(data);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error fetching crops');
         } finally {
             setLoading(false);
         }
-    }, []);    const fetchCropsByFarmerId = useCallback(async (farmerId: number) => {
+    }, [crops, setCrops]);
+
+    const fetchCropsByFarmerId = useCallback(async (farmerId: number) => {
         try {
             setLoading(true);
             setError(null);
+            // Solo hacer fetch si no hay cultivos o si el usuario cambió
+            if (!crops || crops.length === 0 || user?.id !== farmerId) {
             const data = await getCropsByFarmerId(farmerId);
             setCrops(data);
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error fetching crops for farmer');
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [crops, setCrops, user?.id]);
 
-    const createCrop = async (cropData: CreateCropDTO, file: File) => {
+    const createCrop = async (farmerId: number, cropData: CreateCropDTO, file: File) => {
         try {
             setLoading(true);
             setError(null);
-            const newCrop = await createCropWithImage(cropData, file);
-            setCrops(prev => [...prev, newCrop]);
+            const newCrop = await createCropWithImage(farmerId, cropData, file);
+            // Actualizar crops en el store global
+            setCrops([...(crops || []), newCrop]);
             return newCrop;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error creating crop');
@@ -60,7 +74,8 @@ export function useCrops() {
             setLoading(true);
             setError(null);
             const updatedCrop = await updateCrop(cropId, data);
-            setCrops(prev => prev.map(crop => crop.id === cropId ? updatedCrop : crop));
+            // Actualizar crops en el store global
+            setCrops((crops || []).map(crop => crop.id === cropId ? updatedCrop : crop));
             return updatedCrop;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error updating crop');
@@ -75,7 +90,8 @@ export function useCrops() {
             setLoading(true);
             setError(null);
             await deleteCrop(cropId);
-            setCrops(prev => prev.filter(crop => crop.id !== cropId));
+            // Actualizar crops en el store global
+            setCrops((crops || []).filter(crop => crop.id !== cropId));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error deleting crop');
             throw err;
@@ -89,7 +105,8 @@ export function useCrops() {
             setLoading(true);
             setError(null);
             const updatedCrop = await updateCropImage(cropId, file);
-            setCrops(prev => prev.map(crop => crop.id === cropId ? updatedCrop : crop));
+            // Actualizar crops en el store global
+            setCrops((crops || []).map(crop => crop.id === cropId ? updatedCrop : crop));
             return updatedCrop;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error updating crop image');
@@ -104,7 +121,8 @@ export function useCrops() {
             setLoading(true);
             setError(null);
             const updatedCrop = await deleteCropImage(cropId);
-            setCrops(prev => prev.map(crop => crop.id === cropId ? updatedCrop : crop));
+            // Actualizar crops en el store global
+            setCrops((crops || []).map(crop => crop.id === cropId ? updatedCrop : crop));
             return updatedCrop;
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Error removing crop image');
@@ -114,24 +132,11 @@ export function useCrops() {
         }
     };
 
-    const updateIrrigationType = async (cropId: number, data: UpdateIrrigationTypeDTO) => {
-        try {
-            setLoading(true);
-            setError(null);
-            const updatedCrop = await updateCropIrrigationType(cropId, data);
-            setCrops(prev => prev.map(crop => crop.id === cropId ? updatedCrop : crop));
-            return updatedCrop;
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Error updating irrigation type');
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
-        fetchCrops();
-    }, [fetchCrops]);
+        if (user?.id) {
+            fetchCropsByFarmerId(user.id);
+        }
+    }, [user?.id, fetchCropsByFarmerId]);
 
     return {
         crops,
@@ -144,6 +149,5 @@ export function useCrops() {
         removeCrop,
         updateImage,
         removeImage,
-        updateIrrigationType,
     };
 }

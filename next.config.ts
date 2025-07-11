@@ -1,15 +1,12 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  images: {
-    domains: ["res.cloudinary.com"],
-  },
-  async redirects() {
+  /* config options here */
+  async rewrites() {
     return [
       {
-        source: "/",
-        destination: "/login",
-        permanent: true,
+        source: '/api/treatments/:path*',
+        destination: 'https://treatment-service.thankfulwater-e8adfc7e.eastus.azurecontainerapps.io/api/v1/treatments/:path*',
       },
     ];
   },

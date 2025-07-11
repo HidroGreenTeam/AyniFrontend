@@ -1,175 +1,126 @@
-import { Crop, CreateCropDTO, UpdateCropDTO, UpdateIrrigationTypeDTO } from '../types/crop';
+import { Crop, CreateCropDTO, UpdateCropDTO } from '../types/crop';
+import { useGlobalStore } from '@/store/globalStore';
 
-const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/crops`;
+interface ErrorResponse {
+  detail?: string;
+  message?: string;
+  error?: string;
+}
 
-// Función helper para obtener los headers con el token
-const getAuthHeaders = () => {
-    const user = localStorage.getItem('user');
-    if (!user) {
-        throw new Error('No hay usuario autenticado');
-    }
-    const { token } = JSON.parse(user);
-    return {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-    };
+const API_ENDPOINTS = {
+  CROP: (cropId: number) => `/crops/crop/${cropId}`,
+  UPDATE_CROP: (cropId: number) => `/crops/${cropId}`,
+  DELETE_CROP: (cropId: number) => `/crops/${cropId}`,
+  UPLOAD_IMAGE: (cropId: number) => `/crops/${cropId}/image`,
+  DELETE_IMAGE: (cropId: number) => `/crops/${cropId}/cropImage`,
+  ALL_CROPS: '/crops',
+  CREATE_CROP: (farmerId: number) => `/crops/${farmerId}`,
+  FARMER_CROPS: (farmerId: number) => `/crops/${farmerId}`
+} as const;
+
+const JSON_CONTENT_TYPE = 'application/json';
+
+const buildUrl = (endpoint: string): string => {
+  const baseURL = "https://crop-service.thankfulwater-e8adfc7e.eastus.azurecontainerapps.io/api/v1";
+  return `${baseURL}${endpoint}`;
 };
 
-// Función helper para obtener headers para form data
-const getAuthHeadersForFormData = () => {
-    const user = localStorage.getItem('user');
-    if (!user) {
-        throw new Error('No hay usuario autenticado');
-    }
-    const { token } = JSON.parse(user);
-    return {
-        'Authorization': `Bearer ${token}`
-    };
+const tryParseErrorResponse = async (response: Response): Promise<ErrorResponse | null> => {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
 };
 
-// GET /api/v1/crops/{cropId} - Get a crop by cropId
-export async function getCrop(cropId: number): Promise<Crop> {
-    const response = await fetch(`${API_URL}/${cropId}`, {
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) {
-        throw new Error('Error fetching crop');
-    }
-    return response.json();
-}
+const handleResponse = async <T>(response: Response): Promise<T> => {
+  if (!response.ok) {
+    const errorData = await tryParseErrorResponse(response);
+    const message = errorData?.detail || `HTTP ${response.status}: ${response.statusText}`;
+    throw new Error(message);
+  }
+  return response.json();
+};
 
-// PUT /api/v1/crops/{cropId} - Update a crop by cropId (only the crop data) | NO IMAGE UPDATE
-export async function updateCrop(cropId: number, data: UpdateCropDTO): Promise<Crop> {
-    const response = await fetch(`${API_URL}/${cropId}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-        throw new Error('Error updating crop');
-    }
-    return response.json();
-}
+const createFormDataWithFile = (file: File): FormData => {
+  const formData = new FormData();
+  formData.append('file', file);
+  return formData;
+};
 
-// DELETE /api/v1/crops/{cropId} - Delete a crop by cropId
-export async function deleteCrop(cropId: number): Promise<void> {
-    const response = await fetch(`${API_URL}/${cropId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) {
-        throw new Error('Error deleting crop');
-    }
-}
+const createFormDataWithCropAndFile = (cropData: CreateCropDTO, file: File): FormData => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('crop', new Blob([JSON.stringify(cropData)], { type: JSON_CONTENT_TYPE }));
+  return formData;
+};
 
-// PUT /api/v1/crops/{cropId}/cropImage - Update a crop image by cropId
-export async function updateCropImage(cropId: number, file: File): Promise<Crop> {
-    const formData = new FormData();
-    formData.append('file', file);
+const updateGlobalStore = (crops: Crop[]): void => {
+  useGlobalStore.getState().setCrops(crops);
+};
 
-    const response = await fetch(`${API_URL}/${cropId}/cropImage`, {
-        method: 'PUT',
-        headers: getAuthHeadersForFormData(),
-        body: formData,
-    });
-    if (!response.ok) {
-        throw new Error('Error updating crop image');
-    }
-    return response.json();
-}
+export const getCrop = async (cropId: number): Promise<Crop> => {
+  const response = await fetch(buildUrl(API_ENDPOINTS.CROP(cropId)), {
+    method: 'GET'
+  });
+  return handleResponse<Crop>(response);
+};
 
-// DELETE /api/v1/crops/{cropId}/cropImage - Delete a crop image by cropId
-export async function deleteCropImage(cropId: number): Promise<Crop> {
-    const response = await fetch(`${API_URL}/${cropId}/cropImage`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) {
-        throw new Error('Error deleting crop image');
-    }
-    return response.json();
-}
+export const updateCrop = async (cropId: number, data: UpdateCropDTO): Promise<Crop> => {
+  const response = await fetch(buildUrl(API_ENDPOINTS.UPDATE_CROP(cropId)), {
+    method: 'PUT',
+    headers: { 'Content-Type': JSON_CONTENT_TYPE },
+    body: JSON.stringify(data)
+  });
+  return handleResponse<Crop>(response);
+};
 
-// GET /api/v1/crops - Get all crops
-export async function getAllCrops(): Promise<Crop[]> {
-    const response = await fetch(API_URL, {
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) {
-        throw new Error('Error fetching crops');
-    }
-    return response.json();
-}
+export const deleteCrop = async (cropId: number): Promise<void> => {
+  const response = await fetch(buildUrl(API_ENDPOINTS.DELETE_CROP(cropId)), {
+    method: 'DELETE'
+  });
+  return handleResponse<void>(response);
+};
 
-// POST /api/v1/crops - Create a crop with an image
-export async function createCropWithImage(cropData: CreateCropDTO, file: File): Promise<Crop> {
-    console.log('Creating crop with data:', cropData);
-    console.log('File:', file);
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    // Create a blob with the JSON data and proper content type
-    const cropBlob = new Blob([JSON.stringify(cropData)], {
-        type: 'application/json'
-    });
-    formData.append('crop', cropBlob);    console.log('FormData entries:');
-    for (const [key, value] of formData.entries()) {
-        console.log(key, value);
-    }
+export const updateCropImage = async (cropId: number, file: File): Promise<Crop> => {
+  const formData = createFormDataWithFile(file);
+  const response = await fetch(buildUrl(API_ENDPOINTS.UPLOAD_IMAGE(cropId)), {
+    method: 'POST',
+    body: formData
+  });
+  return handleResponse<Crop>(response);
+};
 
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: getAuthHeadersForFormData(),
-        body: formData,
-    });
-    
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
-    
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error:', errorText);
-        throw new Error(`Error creating crop: ${response.status} ${response.statusText} - ${errorText}`);
-    }
-    return response.json();
-}
+export const deleteCropImage = async (cropId: number): Promise<Crop> => {
+  const response = await fetch(buildUrl(API_ENDPOINTS.DELETE_IMAGE(cropId)), {
+    method: 'DELETE'
+  });
+  return handleResponse<Crop>(response);
+};
 
-// POST /api/v1/crops - Create a crop without image (for testing)
-export async function createCrop(cropData: CreateCropDTO): Promise<Crop> {
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(cropData),
-    });
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server error:', errorText);
-        throw new Error(`Error creating crop: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
-}
+export const getAllCrops = async (): Promise<Crop[]> => {
+  const response = await fetch(buildUrl(API_ENDPOINTS.ALL_CROPS), {
+    method: 'GET'
+  });
+  const data = await handleResponse<Crop[]>(response);
+  updateGlobalStore(data);
+  return data;
+};
 
-// PATCH /api/v1/crops/{cropId}/irrigationType - Update the irrigation type of a crop by cropId
-export async function updateCropIrrigationType(cropId: number, data: UpdateIrrigationTypeDTO): Promise<Crop> {
-    const response = await fetch(`${API_URL}/${cropId}/irrigationType`, {
-        method: 'PATCH',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-        throw new Error('Error updating crop irrigation type');
-    }
-    return response.json();
-}
+export const createCropWithImage = async (farmerId: number, cropData: CreateCropDTO, file: File): Promise<Crop> => {
+  const formData = createFormDataWithCropAndFile(cropData, file);
+  const response = await fetch(buildUrl(API_ENDPOINTS.CREATE_CROP(farmerId)), {
+    method: 'POST',
+    body: formData
+  });
+  return handleResponse<Crop>(response);
+};
 
-// GET /api/v1/crops/farmer/{farmerId}/crops - Get all crops for a specific farmer
-export async function getCropsByFarmerId(farmerId: number): Promise<Crop[]> {
-    const response = await fetch(`${API_URL}/farmer/${farmerId}/crops`, {
-        headers: getAuthHeaders()
-    });
-    if (!response.ok) {
-        throw new Error('Error fetching crops for farmer');
-    }
-    return response.json();
-}
+export const getCropsByFarmerId = async (farmerId: number): Promise<Crop[]> => {
+  const response = await fetch(buildUrl(API_ENDPOINTS.FARMER_CROPS(farmerId)), {
+    method: 'GET'
+  });
+  const data = await handleResponse<Crop[]>(response);
+  updateGlobalStore(data);
+  return data;
+};
